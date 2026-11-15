@@ -44,7 +44,8 @@ Every lens runs through a fresh read-only Goldfish subagent.
 - **How to spawn by harness**:
   - **GitHub Copilot**: Run `saw-goldfish` (or `saw-goldfish-web` if `web: yes`).
   - **Claude Code**: Spawn `.claude/agents/saw-goldfish.md` (or `saw-goldfish-web` if `web: yes`).
-  - **Antigravity**: Spawn `saw-goldfish` via `invoke_subagent` (if unavailable in the active surface, spawn a fresh read-only subagent / `research` explicitly instructed: do not edit files, do not run mutations, read the lens first).
+  - **Antigravity**: Spawn `saw-goldfish` (or `saw-goldfish-web` when `web: yes`) via `invoke_subagent` (if unavailable in the active surface, spawn a fresh read-only subagent explicitly instructed not to edit files or run mutations; note that the built-in `research` subagent has no network access).
+  - **Web fallback**: If `web: yes` and the subagent reports web access is unavailable or blocked, Elephant looks up the reference once in the main session and passes the fetched excerpt or temp file path to Goldfish.
 - **Strict input isolation**:
   Pass ONLY:
   1. `LENS`: `.saw/lenses/<lens>.md` (if present) and/or inline `FOCUS: <pack row focus>`

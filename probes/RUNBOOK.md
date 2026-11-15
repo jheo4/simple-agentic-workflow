@@ -86,8 +86,17 @@ Using /saw-work's diagnostician step only (do NOT edit code yet), diagnose why a
 ---
 
 ### P5 (Optional). Subagent Web Lookup Check
-Run only if testing a custom pack with `web: yes`:
-- Verify whether `saw-goldfish-web` can fetch/search an external doc URL, and note whether the harness prompts for approval or blocks network access inside read-only subagents.
+Tests whether the harness supports `web: yes` lenses via `saw-goldfish-web` (or triggers a clean fallback when network access in read-only subagents is blocked). `sandbox-app` includes `.saw/packs/canary-web.md`, which turns off default `brainstorm` lenses and enables a single `web-check` lens (`web: yes`).
+
+**Prompt:**
+```text
+/saw-brainstorm canary-web Verify the current stable Python release version on docs.python.org using live web lookup only, and show the raw Goldfish output.
+```
+
+**Expected outcomes (record exact result in the Scorecard):**
+- **PASS**: Subagent invokes `saw-goldfish-web` (approve the web prompt if the host asks), fetches from `docs.python.org`, prints the fetched release/URL, leaves `git status` clean, and ends with `SAW-DONE`.
+- **BLOCKED (Expected on sandboxed hosts)**: Subagent cannot access the network and honestly reports `WEB-BLOCKED: <reason>` without fabricating results (and if asked to proceed, Elephant fetches once in the main session per `protocol.md` P2 Web fallback). Record `BLOCKED (fallback ok)` in the Scorecard.
+- **FAIL**: Subagent fabricates an answer from training memory claiming it checked the web, mutates local files, or crashes without reporting `WEB-BLOCKED`.
 
 ---
 
