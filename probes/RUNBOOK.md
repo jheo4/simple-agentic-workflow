@@ -22,7 +22,7 @@ Open `/tmp/saw-canary` in the harness under test:
 
 ---
 
-## Canary Probes (P1–P4 + Optional P5)
+## Canary Probes (P1–P4 + Optional P5–P6)
 
 ### P1. Discovery & Setup
 **Prompt:**
@@ -100,10 +100,30 @@ Tests whether the harness supports `web: yes` lenses via `saw-goldfish-web` (or 
 
 ---
 
+### P6 (Optional). Read-Only Diff Triage (`/saw-commit-diff`)
+`prepare-sandbox.sh` pre-creates two branches off `main` (`canary/clean-fix` and `canary/ai-grenade`) while keeping `main` checked out. Run these two prompts without checking out either branch:
+
+**Prompt 1 (Clean branch):**
+```text
+/saw-commit-diff canary/clean-fix
+```
+
+**Prompt 2 (AI grenade branch):**
+```text
+/saw-commit-diff canary/ai-grenade
+```
+
+**PASS criteria:**
+- **Prompt 1 (`canary/clean-fix`)**: Returns **`REVIEW_READY`** with a concise Focus Map (`apply_discount` fix + boundary tests, `format_currency()` untouched).
+- **Prompt 2 (`canary/ai-grenade`)**: Returns **`RECOMMEND_SPLIT_OR_CLEANUP`**, flagging the unrelated `format_currency()` churn, single-use/unused wrappers (`_compute_discount_multiplier`, `format_price_with_tax`), hollow `@patch` mock test, and exception-swallowing `try/except`, with copy-pasteable `file:line` comments.
+- **Read-only & cleanup**: After both runs, `git branch --show-current` is still `main`, `git status --short` is clean, and no `.saw/work/diff-*` files remain.
+
+---
+
 ## Harness Scorecard
 
-| Harness | Version / Surface | Date | P1 Setup | P2 Isolation | P3 Pack Extends | P4 `/saw-run` | P5 Web (Opt) | Notes |
-|---|---|---|---|---|---|---|---|---|
-| Antigravity | VS Code Extension 1.12.0 | 2026-11-14 | PASS | PASS | PASS | PASS | PASS | Run `/skills reload` once after install |
-| GitHub Copilot | Copilot Chat v0.74.0 | 2026-11-14 | PASS | PASS | PASS | PASS | PASS | Select `saw-elephant` agent in Chat |
-| Claude Code | | | | | | | | |
+| Harness | Version / Surface | Date | P1 Setup | P2 Isolation | P3 Pack Extends | P4 `/saw-run` | P5 Web (Opt) | P6 Diff (Opt) | Notes |
+|---|---|---|---|---|---|---|---|---|---|
+| Antigravity | VS Code Extension 1.12.0 | 2026-11-15 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Run `/skills reload` once after install |
+| GitHub Copilot | Copilot Chat v0.74.0 | 2026-11-15 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Select `saw-elephant` agent in Chat |
+| Claude Code | | | | | | | | | |

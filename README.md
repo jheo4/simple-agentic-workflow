@@ -24,6 +24,7 @@ Works out of the box inside any project across **GitHub Copilot**, **Claude Code
 | `/saw-brainstorm [pack] <topic>` | Brainstorm | Runs 4 parallel lenses (`incremental`, `reframe`, `zoom`, `reality` suppressor) to pick the right task. |
 | `/saw-spec [pack] <task>` | Task Spec | Drafts a concise spec with edge cases + verification criteria, refined by `clarity`. |
 | `/saw-review [pack] [spec\|diff]` | Review | Runs `critic` + `simplifier` on a spec or pending diff and applies pragmatic fixes. |
+| `/saw-commit-diff [pack] <target>` | Diff Triage | Compares commits, branches, or a PR read-only without checkout; outputs summary + SAW commentary. |
 | `/saw-work [pack] <spec\|task>` | Work | Implements cleanly, runs test/lint commands, optional blind `diagnostician`, then post-work diff review. |
 | `/saw-sync` | Sync | Patches `.saw/profile.md` and drifted docs to match **current code on disk** via minimal diffs. |
 | `/saw-run [pack] <task>` | **Full Auto** | Drafts `spec` → **stops ONCE for confirmation** → runs pre-review, implementation, tests, post-review, and sync **non-stop**. |
