@@ -104,6 +104,6 @@ Tests whether the harness supports `web: yes` lenses via `saw-goldfish-web` (or 
 
 | Harness | Version / Surface | Date | P1 Setup | P2 Isolation | P3 Pack Extends | P4 `/saw-run` | P5 Web (Opt) | Notes |
 |---|---|---|---|---|---|---|---|---|
-| Antigravity | | | | | | | | |
-| GitHub Copilot | | | | | | | | |
+| Antigravity | VS Code Extension 1.12.0 | 2026-11-14 | PASS | PASS | PASS | PASS | PASS | Run `/skills reload` once after install |
+| GitHub Copilot | Copilot Chat v0.74.0 | 2026-11-14 | PASS | PASS | PASS | PASS | PASS | Select `saw-elephant` agent in Chat |
 | Claude Code | | | | | | | | |
