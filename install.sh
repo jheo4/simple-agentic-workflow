@@ -59,7 +59,6 @@ done
 
 SRC=$(cd "$(dirname "$0")" && pwd)
 TARGET=$(cd "$TARGET" && pwd)
-[ "$SRC" != "$TARGET" ] || { echo "error: target cannot be the SAW source directory itself" >&2; exit 1; }
 
 use_copilot=0
 use_claude=0

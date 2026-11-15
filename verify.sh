@@ -11,11 +11,11 @@ fail() {
   exit 1
 }
 
-echo "[1/4] Checking install.sh syntax..."
+echo "[1/5] Checking install.sh syntax..."
 bash -n "$ROOT/install.sh" || fail "install.sh has syntax errors"
 [ -x "$ROOT/install.sh" ] || fail "install.sh is not executable"
 
-echo "[2/4] Checking skill frontmatter & folder names..."
+echo "[2/5] Checking skill frontmatter & folder names..."
 for skill_md in "$ROOT"/skills/saw-*/SKILL.md; do
   dir_name=$(basename "$(dirname "$skill_md")")
   fm_name=$(awk -F': *' '$1=="name"{print $2; exit}' "$skill_md" | tr -d '\r')
@@ -24,7 +24,7 @@ for skill_md in "$ROOT"/skills/saw-*/SKILL.md; do
   [ -n "$fm_desc" ] || fail "$skill_md: missing description"
 done
 
-echo "[3/4] Checking general.md lens references..."
+echo "[3/5] Checking general.md lens references..."
 while IFS='|' read -r _ phase lens use _; do
   lens=$(echo "$lens" | xargs)
   phase=$(echo "$phase" | xargs)
@@ -36,7 +36,7 @@ while IFS='|' read -r _ phase lens use _; do
   [ -f "$ROOT/templates/lenses/$lens.md" ] || fail "general.md references missing lens file: templates/lenses/$lens.md"
 done < <(grep '^|' "$ROOT/templates/packs/general.md")
 
-echo "[4/4] Testing install.sh across targets & --update preservation..."
+echo "[4/5] Testing install.sh across targets & --update preservation..."
 for target in all copilot claude antigravity; do
   proj="$TMP_BASE/proj-$target"
   mkdir -p "$proj"
@@ -57,5 +57,19 @@ for marker_file in "$upd/.github/copilot-instructions.md" "$upd/CLAUDE.md" "$upd
   count=$(grep -c '^<!-- SAW:BEGIN -->$' "$marker_file")
   [ "$count" -eq 1 ] || fail "$marker_file: expected 1 SAW:BEGIN marker, found $count"
 done
+
+echo "[5/5] Testing self-install (dogfooding) into a copied SAW root..."
+self_saw="$TMP_BASE/self-saw"
+mkdir -p "$self_saw"
+cp -R "$ROOT/install.sh" "$ROOT/templates" "$ROOT/skills" "$ROOT/adapters" "$self_saw/"
+"$self_saw/install.sh" "$self_saw" >/dev/null
+[ -f "$self_saw/.saw/protocol.md" ] || fail "self-install: missing .saw/protocol.md"
+[ -f "$self_saw/.github/skills/saw-run/SKILL.md" ] || fail "self-install: missing .github/skills/saw-run/SKILL.md"
+[ -f "$self_saw/.claude/skills/saw-run/SKILL.md" ] || fail "self-install: missing .claude/skills/saw-run/SKILL.md"
+[ -f "$self_saw/.agents/skills/saw-run/SKILL.md" ] || fail "self-install: missing .agents/skills/saw-run/SKILL.md"
+cmp -s "$ROOT/templates/protocol.md" "$self_saw/templates/protocol.md" || fail "self-install mutated source templates/"
+echo "self-custom-profile" >> "$self_saw/.saw/profile.md"
+"$self_saw/install.sh" "$self_saw" --update >/dev/null
+grep -qxF "self-custom-profile" "$self_saw/.saw/profile.md" || fail "self-install --update overwrote .saw/profile.md"
 
 echo "PASS: All Layer 1 SAW checks passed."
