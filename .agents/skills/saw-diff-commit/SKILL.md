@@ -19,7 +19,7 @@ Validate `<target>` before creating temp files:
 
 ## 2. Package Diff (`DIFF_PATH`)
 1. `mkdir -p .saw/work` and create `DIFF_PATH` via `mktemp .saw/work/diff-XXXXXX` (portable across Linux/macOS). Always delete only `"$DIFF_PATH"` on every exit path (success, short-circuit, or error).
-2. Write header (PR title/body or `git log`, plus full `git diff --stat` or `gh pr view` files) and diff (`git diff --no-color --no-ext-diff -M -U5 ... -- . ':!*.lock' ':!*-lock.*' ':!package-lock.json'` — never `-w` — or `git show` with the same lockfile exclusions, or `gh pr diff --color=never`). If oversized, drop lockfile/generated chunks and prioritize behavioral diffs with a header truncation note.
+2. Write header (PR title/body or `git log`, plus full `git diff --stat` or `gh pr view` files) and diff (`git diff --no-color --no-ext-diff -M -U5 ... -- . ':!*.lock' ':!*-lock.*' ':!package-lock.json'` — never `-w` — or `git show` with the same lockfile exclusions, or `gh pr diff --color=never` filtering out lockfile chunks `*.lock` / `*-lock.*` / `package-lock.json`). If oversized, drop generated chunks too and prioritize behavioral diffs with a header truncation note.
 3. If empty (zero changed files in `--stat`/PR) or trivial-only (typos, comments, lockfiles only), summarize directly from `--stat`, delete `"$DIFF_PATH"`, and stop.
 
 ## 3. Run Active `review` Lenses

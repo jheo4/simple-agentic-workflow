@@ -90,6 +90,13 @@ for marker_file in "$upd/.github/copilot-instructions.md" "$upd/CLAUDE.md" "$upd
   [ "$count" -eq 1 ] || fail "$marker_file: expected 1 SAW:BEGIN marker, found $count"
 done
 
+# Verify reversed SAW markers fail fast without mutating user content
+bad_proj="$TMP_BASE/bad-markers"
+mkdir -p "$bad_proj"
+printf '%s\n' '<!-- SAW:END -->' '<!-- SAW:BEGIN -->' 'user-keep' > "$bad_proj/AGENTS.md"
+! "$ROOT/install.sh" "$bad_proj" --targets antigravity --update 2>/dev/null || fail "reversed SAW markers should fail"
+grep -qxF "user-keep" "$bad_proj/AGENTS.md" || fail "reversed marker failure mutated AGENTS.md"
+
 echo "[5/5] Testing self-install (dogfooding) into a copied SAW root..."
 self_saw="$TMP_BASE/self-saw"
 mkdir -p "$self_saw"

@@ -119,8 +119,17 @@ install_block() {
   fi
 
   if grep -qxF "$BEGIN_MARK" "$dst"; then
-    grep -qxF "$END_MARK" "$dst" || {
-      echo "error: $dst_rel has $BEGIN_MARK without $END_MARK; fix it manually" >&2
+    local begin_count end_count begin_line end_line
+    begin_count=$(grep -cxF "$BEGIN_MARK" "$dst")
+    end_count=$(grep -cxF "$END_MARK" "$dst" || true)
+    [ "$begin_count" -eq 1 ] && [ "$end_count" -eq 1 ] || {
+      echo "error: $dst_rel must contain exactly one $BEGIN_MARK and one $END_MARK; fix it manually" >&2
+      exit 1
+    }
+    begin_line=$(grep -nxF "$BEGIN_MARK" "$dst" | cut -d: -f1)
+    end_line=$(grep -nxF "$END_MARK" "$dst" | cut -d: -f1)
+    [ "$begin_line" -lt "$end_line" ] || {
+      echo "error: $dst_rel has $END_MARK before $BEGIN_MARK; fix it manually" >&2
       exit 1
     }
     local tmp

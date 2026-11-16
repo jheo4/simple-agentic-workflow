@@ -54,9 +54,9 @@ cd simple-agentic-workflow
 ```
 
 Open `/path/to/your-project` in your coding agent:
-- **Antigravity**: Start a new conversation / reload window (or run `/skills reload` in `agy` CLI), then run `/saw-setup`.
-- **GitHub Copilot (VS Code)**: Select the **`saw-elephant`** agent in Chat, then run `/saw-setup`.
-- **Claude Code**: Run `/saw-setup` directly *(adapter included; Layer 2 scorecard pending in [`probes/RUNBOOK.md`](probes/RUNBOOK.md))*.
+- **Antigravity** *(App, CLI, or VS Code extension)*: Start a new conversation / reload window (or run `/skills reload` in `agy` CLI), then run `/saw-setup`.
+- **GitHub Copilot** *(VS Code extension)*: Select the **`saw-elephant`** agent in Chat, then run `/saw-setup`.
+- **Claude Code** *(CLI or VS Code extension)*: Run `/saw-setup` directly *(adapter included; Layer 2 scorecard pending in [`probes/RUNBOOK.md`](probes/RUNBOOK.md))*.
 
 Then run **`/saw-run <task>`** for end-to-end execution, or **`/saw-help`** anytime to view phases and active Goldfish lenses.
 
