@@ -1,6 +1,6 @@
 ---
 name: saw-setup
-description: Set up or refresh the SAW project profile (.saw/profile.md) for a new or existing project.
+description: "[Start] Set up or refresh the SAW project profile (.saw/profile.md) for a new or existing project."
 argument-hint: "[optional notes or target stack]"
 disable-model-invocation: true
 ---
@@ -23,3 +23,4 @@ Initialize or refresh `.saw/profile.md` without calling Goldfish. Works for both
 1. Show the proposed `.saw/profile.md` draft concisely (if updating an existing configured profile, show only what changed).
 2. Ask the user to confirm or tweak, then write `.saw/profile.md`.
 3. Optionally offer to run the verification commands once to confirm they work.
+4. End with a 1-line breadcrumb: `Next: /saw-brainstorm <topic> (explore options) or /saw-run <task> (full auto)`.

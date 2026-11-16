@@ -1,6 +1,6 @@
 ---
 name: saw-spec
-description: Clarify and structure a concrete task specification with scope, edge cases, and verification criteria.
+description: "[2. Spec] Clarify and structure a concrete task specification with scope, edge cases, and verification criteria."
 argument-hint: "[pack] <task description or brainstorm pick>"
 disable-model-invocation: true
 ---
@@ -30,4 +30,4 @@ Run active `spec` lenses from the resolved pack (default: `clarity`) in parallel
 - Per P3 (manual mode): if `SAW-STATUS: SUGGEST` remains after `rounds.spec`, summarize open points and ask whether to run one more check or finalize.
 
 ## 4. Present Spec
-Show the clean final `spec.md` path and summary, ready for `/saw-review` or `/saw-work`.
+Show the clean final `spec.md` path and summary, then end with: `Next: /saw-review <spec-path> (pre-work review) or /saw-work <spec-path> (implement)`.

@@ -18,16 +18,29 @@ Works out of the box inside any project across **GitHub Copilot**, **Claude Code
 
 ## Workflow Phases & Skills
 
+Typical flow: `/saw-setup` (once) → `/saw-brainstorm` (if unsure) → `/saw-run` (all-in-one). Run `/saw-help` anytime to see phases, default Goldfish lenses, or get a recommendation.
+
+### Start / Auto
 | Skill | Phase | What It Does |
 |---|---|---|
 | `/saw-setup` | Setup | Scans an existing repo (or interviews briefly for a new one) to create `.saw/profile.md`. |
+| `/saw-run [pack] <task>` | **Full Auto** | Drafts `spec` → **stops ONCE for confirmation** → runs pre-review, implementation, tests, post-review, and sync **non-stop**. |
+| `/saw-help [goal\|pack]` | Help | Shows the workflow map, active Goldfish lenses per phase, or recommends the right skill. |
+
+### Manual Lifecycle
+| Skill | Phase | What It Does |
+|---|---|---|
 | `/saw-brainstorm [pack] <topic>` | Brainstorm | Runs 4 parallel lenses (`incremental`, `reframe`, `zoom`, `reality` suppressor) to pick the right task. |
 | `/saw-spec [pack] <task>` | Task Spec | Drafts a concise spec with edge cases + verification criteria, refined by `clarity`. |
 | `/saw-review [pack] [spec\|diff]` | Review | Runs `critic` + `simplifier` on a spec or pending diff and applies pragmatic fixes. |
-| `/saw-commit-diff [pack] <target>` | Diff Triage | Compares commits, branches, or a PR read-only without checkout; outputs summary + SAW commentary. |
 | `/saw-work [pack] <spec\|task>` | Work | Implements cleanly, runs test/lint commands, optional blind `diagnostician`, then post-work diff review. |
 | `/saw-sync` | Sync | Patches `.saw/profile.md` and drifted docs to match **current code on disk** via minimal diffs. |
-| `/saw-run [pack] <task>` | **Full Auto** | Drafts `spec` → **stops ONCE for confirmation** → runs pre-review, implementation, tests, post-review, and sync **non-stop**. |
+
+### Read-Only Diffs
+| Skill | Phase | What It Does |
+|---|---|---|
+| `/saw-diff-commit [pack] <target>` | Diff Triage | Compares commits, branches, or a PR read-only without checkout; outputs summary + SAW commentary. |
+| `/saw-diff-files [pack] <left> <right> [focus]` | Diff Compare | Compares any two files or directories (code, data, docs) across `concept`, `direction`, and `detail`. |
 
 ---
 
@@ -37,8 +50,9 @@ Located in `.saw/packs/general.md`:
 
 - **brainstorm** (`4` parallel): `incremental` (minimal high-leverage start), `reframe` (alternative angle), `zoom` (zoom-out + zoom-in), `reality` (suppressor / anti-bloat).
 - **spec** (`1`): `clarity` (ambiguities, edge cases, verification criteria).
-- **review** (`2` parallel, shared for pre-work specs & post-work diffs): `critic` (bugs, risks, missing tests) + `simplifier` (reuse, anti-bloat, **Human-Reviewable Minimal Diff**).
+- **review** (`2` parallel, shared for `pre-work` specs, `post-work` diffs, and `/saw-diff-commit`): `critic` (bugs, risks, missing tests) + `simplifier` (reuse, anti-bloat, **Human-Reviewable Minimal Diff**).
 - **work** (`on_demand`): `diagnostician` (blind root-cause analysis from symptom + repro only when stuck or fixing unclear bugs).
+- **diff** (`3` parallel, for `/saw-diff-files`): `concept` (macro problem, abstractions, alignment map), `direction` (approach, structure, trade-offs), `detail` (concrete code/data/doc drift, contradictions, gaps).
 
 ### Customizing via `extends: general`
 

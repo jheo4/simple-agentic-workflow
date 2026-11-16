@@ -1,6 +1,6 @@
 ---
 name: saw-sync
-description: Update .saw/profile.md, project docs, and status summaries using minimal pinpoint diffs grounded in the current code.
+description: "[5. Sync] Update .saw/profile.md, project docs, and status summaries using minimal pinpoint diffs grounded in the current code."
 argument-hint: "[optional scope or doc paths]"
 disable-model-invocation: true
 ---
@@ -21,4 +21,4 @@ Look specifically for drifted paths, renamed commands/flags, obsolete instructio
 - If a listed doc looks obsolete or large and needs structural rework, ask before rewriting.
 
 ## 3. Report
-Print a concise list of what drifted, which files were updated, and remind the user to inspect the small diff.
+Print a concise list of what drifted, which files were updated, and end with `Next: inspect git status / git diff (ready for manual commit)`.

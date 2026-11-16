@@ -100,17 +100,17 @@ Tests whether the harness supports `web: yes` lenses via `saw-goldfish-web` (or 
 
 ---
 
-### P6 (Optional). Read-Only Diff Triage (`/saw-commit-diff`)
+### P6 (Optional). Read-Only Diff Triage (`/saw-diff-commit`)
 `prepare-sandbox.sh` pre-creates two branches off `main` (`canary/clean-fix` and `canary/ai-grenade`) while keeping `main` checked out. Run these two prompts without checking out either branch:
 
 **Prompt 1 (Clean branch):**
 ```text
-/saw-commit-diff canary/clean-fix
+/saw-diff-commit canary/clean-fix
 ```
 
 **Prompt 2 (AI grenade branch):**
 ```text
-/saw-commit-diff canary/ai-grenade
+/saw-diff-commit canary/ai-grenade
 ```
 
 **PASS criteria:**

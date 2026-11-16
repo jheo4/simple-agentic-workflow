@@ -1,10 +1,10 @@
 ---
-name: saw-commit-diff
-description: Read-only comparison of commits, branches, or a PR without checking out, outputting a change summary and SAW-philosophy commentary.
+name: saw-diff-commit
+description: "[Diff: Git/PR] Read-only comparison of commits, branches, or a PR without checking out; outputs summary + SAW commentary."
 argument-hint: "[pack] <range | branch | commit | #pr | pr-url>"
 disable-model-invocation: true
 ---
-# SAW Commit Diff
+# SAW Diff Commit
 
 Read `.saw/protocol.md` first and follow P0–P2 (`phase = review`). Strictly read-only: never run `git checkout`, stage/commit, upload PR reviews (`gh pr review`), or edit repo files.
 

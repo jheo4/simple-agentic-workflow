@@ -1,6 +1,6 @@
 ---
 name: saw-review
-description: Run an independent Goldfish review (critic + simplifier) on a task spec or pending code diff and apply pragmatic improvements.
+description: "[3. Review] Run an independent Goldfish review (critic + simplifier) on a task spec or pending code diff and apply pragmatic improvements."
 argument-hint: "[pack] [spec path | 'diff' | focus]"
 disable-model-invocation: true
 ---
@@ -25,3 +25,4 @@ For each round up to `rounds.review_manual` (default `2`):
   - For suggestions intentionally skipped, record a 1-line factual reason.
   - If code changed, re-run relevant verification commands from `.saw/profile.md`.
 - If `rounds.review_manual` ends with remaining unapplied suggestions, summarize them concisely and ask the user: **"Run one more review round, or wrap up here?"**
+- When wrapping up cleanly, end with `Next: /saw-work <spec-path>` (after `pre-work`) or `Next: /saw-sync` (after `post-work`).

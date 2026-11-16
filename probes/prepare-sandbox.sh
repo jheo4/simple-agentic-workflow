@@ -47,7 +47,7 @@ cp -R "$PROBES_DIR/sandbox-app/." "$DEST/"
   git add -A
   git commit -q -m "chore: baseline canary sandbox with SAW installed"
 
-  # Canary branches for P6 (/saw-commit-diff); main stays unchanged for P1-P5.
+  # Canary branches for P6 (/saw-diff-commit); main stays unchanged for P1-P5.
   git checkout -q -b canary/clean-fix main
   cat > pricing.py <<'EOF'
 """Minimal sandbox module for SAW canary probes."""

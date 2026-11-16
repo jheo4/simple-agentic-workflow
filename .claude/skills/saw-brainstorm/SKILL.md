@@ -1,6 +1,6 @@
 ---
 name: saw-brainstorm
-description: Screen ideas or decide what task to tackle next using balanced diverge + reality-check Goldfish perspectives.
+description: "[1. Brainstorm] Screen ideas or decide what task to tackle next using balanced diverge + reality-check Goldfish perspectives."
 argument-hint: "[pack] <topic or problem>"
 disable-model-invocation: true
 ---
@@ -26,4 +26,4 @@ Pass ONLY `LENS` + `PROFILE` + `SEED` (and `FOCUS` if defined in the pack row).
 Deduplicate overlapping ideas and present a clean, scannable brief:
 - **Recommended Picks (Top 2–3)**: Option name, angle (`incremental` / `reframe` / `zoom`), what changes, and upside/trade-off.
 - **Reality Check (`reality`)**: Key risks, scope cuts, or reasons not to build something.
-- **Next Step**: Ask which option to turn into `/saw-spec` or run end-to-end with `/saw-run` (or whether to explore another angle).
+- `Next: /saw-spec <pick> (refine spec) or /saw-run <pick> (full auto)` — or ask to explore another angle.

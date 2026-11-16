@@ -8,11 +8,11 @@
 #   copilot (or github), claude (or claude-code), antigravity (or agy), all (default)
 #
 # Ownership:
-#   SAW-owned (refreshed on --update):
-#     .saw/protocol.md, .saw/packs/general.md, .saw/lenses/{incremental,reframe,zoom,reality,clarity,critic,simplifier,diagnostician}.md
+#   SAW-owned (refreshed on --update; retired saw-* skills pruned on --update):
+#     .saw/protocol.md, .saw/packs/general.md, .saw/lenses/{incremental,reframe,zoom,reality,clarity,critic,simplifier,diagnostician,concept,direction,detail}.md
 #     Harness skills/agents & <!-- SAW:BEGIN -->...<!-- SAW:END --> blocks
 #   Project-owned (never overwritten):
-#     .saw/profile.md, custom .saw/packs/*.md, custom .saw/lenses/*.md, existing user instructions outside SAW markers
+#     .saw/profile.md, custom .saw/packs/*.md, custom .saw/lenses/*.md, custom skills, existing user instructions outside SAW markers
 
 set -euo pipefail
 
@@ -86,6 +86,7 @@ updated=()
 unchanged=()
 conflicts=()
 kept=()
+removed=()
 
 copy_owned() {
   local src_rel=$1 dst_rel=$2
@@ -151,14 +152,25 @@ install_block() {
   fi
 }
 
+RETIRED_SKILLS=(saw-commit-diff saw-diff)
+
 install_skills_into() {
   local prefix=$1
-  local skill_dir skill_name
+  local skill_dir skill_name old_name old_dir
   for skill_dir in "$SRC"/skills/saw-*; do
     [ -d "$skill_dir" ] || continue
     skill_name=$(basename "$skill_dir")
     copy_owned "skills/$skill_name/SKILL.md" "$prefix/skills/$skill_name/SKILL.md"
   done
+  if [ "$UPDATE" -eq 1 ]; then
+    for old_name in "${RETIRED_SKILLS[@]}"; do
+      old_dir="$TARGET/$prefix/skills/$old_name"
+      if [ -d "$old_dir" ]; then
+        rm -rf "$old_dir"
+        removed+=("$prefix/skills/$old_name")
+      fi
+    done
+  fi
 }
 
 # 1. Core (.saw/)
@@ -239,6 +251,7 @@ report() {
 echo "SAW install into $TARGET (targets: $TARGETS)"
 report "installed:" ${installed[@]+"${installed[@]}"}
 report "updated:" ${updated[@]+"${updated[@]}"}
+report "removed (obsolete):" ${removed[@]+"${removed[@]}"}
 report "unchanged:" ${unchanged[@]+"${unchanged[@]}"}
 report "kept (project-owned):" ${kept[@]+"${kept[@]}"}
 if [ "${#conflicts[@]}" -gt 0 ]; then

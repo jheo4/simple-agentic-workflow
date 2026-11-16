@@ -1,6 +1,6 @@
 ---
 name: saw-work
-description: Implement a task cleanly with minimal human-reviewable diffs, verification tests, and post-work Goldfish diff review.
+description: "[4. Work] Implement a task cleanly with minimal human-reviewable diffs, verification tests, and post-work Goldfish diff review."
 argument-hint: "[pack] <spec path or task/bug description>"
 disable-model-invocation: true
 ---
@@ -35,4 +35,4 @@ Package pending changes into `<work>/review-round<N>.diff` (P4) and run active `
 - In manual `/saw-work` mode, if `review_post` ends with open suggestions, ask whether to do one more round or wrap up.
 
 ## 6. Clean Up & Report
-Delete throwaway `.diff` / `baseline/` snapshots; summarize files changed, verification command outputs, and any skipped review notes.
+Delete throwaway `.diff` / `baseline/` snapshots; summarize files changed, verification command outputs, and any skipped review notes, then end with `Next: /saw-sync` (if docs/profile changed).

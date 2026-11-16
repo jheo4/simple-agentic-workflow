@@ -1,6 +1,6 @@
 ---
 name: saw-run
-description: Full end-to-end auto workflow: draft spec -> single user confirmation -> non-stop pre-review, work, tests, post-review, and sync.
+description: "[Auto] Full end-to-end auto workflow: draft spec -> single user confirmation -> non-stop pre-review, work, tests, post-review, and sync."
 argument-hint: "[pack] <task or feature description>"
 disable-model-invocation: true
 ---
