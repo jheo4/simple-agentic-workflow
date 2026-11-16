@@ -2,7 +2,7 @@
 
 > Back to [README](../README.md) · Related: [Customizing Packs & Lenses](customization.md) · Core spec: [`templates/protocol.md`](../templates/protocol.md)
 
-Simple Agentic Workflow (SAW) separates **stateful execution** from **fresh-context evaluation** so coding agents produce small, verified, human-reviewable changes instead of bloated "AI grenades."
+Simple Agentic Workflow (SAW) separates **stateful execution** from **fresh-context evaluation** so coding agents produce small, verified, human-reviewable changes instead of bloated "AI grenades." Unlike single-thread prompts (which validate their own assumptions) or multi-gate spec frameworks (which bury you in approval reports), SAW pairs **deterministic verification** (`.saw/profile.md` commands) with **cognitive fresh-context audits** (Goldfish) inside a bounded execution loop with at most one spec checkpoint (`/saw-run`).
 
 - **Daily entrypoints**: `/saw-setup` (configure `.saw/profile.md`), `/saw-run` (automated end-to-end flow), or `/saw-help` (guide).
 - **Manual lifecycle**: `/saw-brainstorm` → `/saw-spec` → `/saw-review` → `/saw-work` → `/saw-sync`.

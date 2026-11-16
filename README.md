@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  A lightweight, <code>.envrc</code>-style workflow for <strong>stateful development</strong> and <strong>fresh-context review</strong>—without heavy ceremony.
+  A lightweight, <code>.envrc</code>-style workflow (<code>/saw-*</code> skills + isolated Goldfish subagents) for <strong>stateful development</strong> and <strong>fresh-context review</strong>—without heavy ceremony.
 </p>
 
 <p align="center">
@@ -17,9 +17,11 @@
 
 ## Why SAW?
 
-- **Elephant (Stateful Development)**: Holds conversation context, drafts specs, writes code, and runs real verification commands.
-- **Goldfish (Fresh-Context Review)**: Read-only subagents spawned with zero chat history to inspect only isolated inputs (`spec`, `diff`, `seed`, or `symptom+repro`)—catching blind spots without sycophancy.
-- **Anti-Slop & Minimal Diff**: Prevents bloated "AI grenade" PRs with bounded specs, dual-lens review (`critic` + `simplifier`), and read-only diff triage.
+Single-session coding agents validate their own assumptions and dump noisy diffs, while heavy spec frameworks bury you in approval reports. SAW pairs real verification commands with fresh-context Goldfish audits—like TDD for agentic development:
+
+- **Elephant (Stateful Development)**: Holds conversation context, drafts specs and code, and runs real verification commands from `.saw/profile.md` plus bounded Goldfish review loops (recording 1-line reasons for any skipped suggestions).
+- **Goldfish (Fresh-Context Review)**: Read-only subagents spawned with zero chat history to inspect only isolated inputs (`spec`, `diff`, `seed`, `symptom+repro`, or `files/dirs`)—catching blind spots without sycophancy.
+- **Anti-Slop & Minimal Diff**: Prevents bloated "AI grenade" PRs with bounded specs, dual-lens review (`critic` + `simplifier`), read-only diff triage, and inheritable `extends: general` packs.
 
 ## How `/saw-run` Works
 
@@ -63,6 +65,8 @@ Then run **`/saw-run <task>`** for end-to-end execution, or **`/saw-help`** anyt
 ---
 
 ## Commands & Examples
+
+Commands marked `[pack]` take an optional pack from `.saw/packs/<pack>.md` first (otherwise uses `default-pack` in `.saw/profile.md`, fallback: `general`—see [Customizing Packs & Lenses](docs/customization.md)).
 
 ### Start / Auto
 | Skill | When to Use |

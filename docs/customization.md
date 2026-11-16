@@ -2,6 +2,8 @@
 
 > Back to [README](../README.md) · Related: [Architecture & Design](architecture.md) · Core spec: [`templates/protocol.md`](../templates/protocol.md)
 
+Just as different projects need different test suites, they also need different workflow and review criteria. Rather than writing every rule from scratch, SAW ships a universal `general` pack that any project can inherit (`extends: general`)—toggling unneeded lenses off or adding domain-specific ones in a few lines.
+
 After running `./install.sh /path/to/your-project`, SAW stores all configuration inside `.saw/`:
 - **Pack** (`.saw/packs/<name>.md`): A routing table that maps workflow phases to Goldfish lenses and sets loop caps (`rounds`).
 - **Lens** (`.saw/lenses/<name>.md` or inline `focus`): A read-only stance prompt telling a fresh Goldfish subagent what to inspect.
