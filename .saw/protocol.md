@@ -57,7 +57,7 @@ Every lens runs through a fresh read-only Goldfish subagent.
 ## P3. Loop Policy (Pragmatic Auto vs Interactive)
 
 Goldfish outputs end cleanly with one line:
-- `SAW-DONE` (for `brainstorm` and `diagnostician`)
+- `SAW-DONE` (for `brainstorm`, `diff`, and `diagnostician`)
 - `SAW-STATUS: OK` or `SAW-STATUS: SUGGEST` (for `spec` and `review`)
 
 How Elephant handles `SUGGEST` depends on how the skill was invoked:
