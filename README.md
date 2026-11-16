@@ -1,111 +1,117 @@
-# Simple Agentic Workflow (SAW)
+<p align="center">
+  <img src="assets/banner.jpg" alt="SAW — Simple Agentic Workflow: Stateful Development · Fresh-Context Review" width="100%" />
+</p>
 
-A lightweight, project-local (`.envrc`-style) agentic development workflow inspired by the **Elephant–Goldfish** idea, stripped of heavy ceremonies so AI actually improves productivity.
+<p align="center">
+  A lightweight, <code>.envrc</code>-style workflow for <strong>stateful development</strong> and <strong>fresh-context review</strong>—without heavy ceremony.
+</p>
 
-Works out of the box inside any project across **GitHub Copilot**, **Claude Code**, and **Antigravity**.
-
----
-
-## Core Idea
-
-- **Elephant (your main session)**: Holds conversation context, writes specs and code, runs real verification commands, and communicates with you.
-- **Goldfish (automated fresh-context helpers)**: Read-only subagents with zero prior chat history that inspect isolated inputs (seed, spec, diff, or symptom+repro) through focused lenses—catching blind spots without burying you in multi-stage approval reports.
-- **Human-Reviewable Minimal Diff**: Changes stay tightly scoped, natural, and readable so human code review takes minutes instead of creating review fatigue.
-
-*(Trivial fixes like typos or one-line tweaks don't need SAW—just ask your agent directly, or SAW will fast-path them.)*
-
----
-
-## Workflow Phases & Skills
-
-Typical flow: `/saw-setup` (once) → `/saw-brainstorm` (if unsure) → `/saw-run` (all-in-one). Run `/saw-help` anytime to see phases, default Goldfish lenses, or get a recommendation.
-
-### Start / Auto
-| Skill | Phase | What It Does |
-|---|---|---|
-| `/saw-setup` | Setup | Scans an existing repo (or interviews briefly for a new one) to create `.saw/profile.md`. |
-| `/saw-run [pack] <task>` | **Full Auto** | Drafts `spec` → **stops ONCE for confirmation** → runs pre-review, implementation, tests, post-review, and sync **non-stop**. |
-| `/saw-help [goal\|pack]` | Help | Shows the workflow map, active Goldfish lenses per phase, or recommends the right skill. |
-
-### Manual Lifecycle
-| Skill | Phase | What It Does |
-|---|---|---|
-| `/saw-brainstorm [pack] <topic>` | Brainstorm | Runs 4 parallel lenses (`incremental`, `reframe`, `zoom`, `reality` suppressor) to pick the right task. |
-| `/saw-spec [pack] <task>` | Task Spec | Drafts a concise spec with edge cases + verification criteria, refined by `clarity`. |
-| `/saw-review [pack] [spec\|diff]` | Review | Runs `critic` + `simplifier` on a spec or pending diff and applies pragmatic fixes. |
-| `/saw-work [pack] <spec\|task>` | Work | Implements cleanly, runs test/lint commands, optional blind `diagnostician`, then post-work diff review. |
-| `/saw-sync` | Sync | Patches `.saw/profile.md` and drifted docs to match **current code on disk** via minimal diffs. |
-
-### Read-Only Diffs
-| Skill | Phase | What It Does |
-|---|---|---|
-| `/saw-diff-commit [pack] <target>` | Diff Triage | Compares commits, branches, or a PR read-only without checkout; outputs summary + SAW commentary. |
-| `/saw-diff-files [pack] <left> <right> [focus]` | Diff Compare | Compares any two files or directories (code, data, docs) across `concept`, `direction`, and `detail`. |
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
+  <a href="#quick-start-60-seconds"><img src="https://img.shields.io/badge/Runtime-Bash%20%2B%20Markdown-2ea44f.svg" alt="Zero Dependencies" /></a>
+  <a href="probes/RUNBOOK.md#harness-scorecard"><img src="https://img.shields.io/badge/Verified-Antigravity%20%7C%20Copilot-brightgreen.svg" alt="Verified Harnesses" /></a>
+  <a href="probes/RUNBOOK.md#harness-scorecard"><img src="https://img.shields.io/badge/Claude%20Code-Adapter%20Included-lightgrey.svg" alt="Claude Code" /></a>
+</p>
 
 ---
 
-## Default `general` Pack & Inheritance
+## Why SAW?
 
-Located in `.saw/packs/general.md`:
+- **Elephant (Stateful Development)**: Holds conversation context, drafts specs, writes code, and runs real verification commands.
+- **Goldfish (Fresh-Context Review)**: Read-only subagents spawned with zero chat history to inspect only isolated inputs (`spec`, `diff`, `seed`, or `symptom+repro`)—catching blind spots without sycophancy.
+- **Anti-Slop & Minimal Diff**: Prevents bloated "AI grenade" PRs with bounded specs, dual-lens review (`critic` + `simplifier`), and read-only diff triage.
 
-- **brainstorm** (`4` parallel): `incremental` (minimal high-leverage start), `reframe` (alternative angle), `zoom` (zoom-out + zoom-in), `reality` (suppressor / anti-bloat).
-- **spec** (`1`): `clarity` (ambiguities, edge cases, verification criteria).
-- **review** (`2` parallel, shared for `pre-work` specs, `post-work` diffs, and `/saw-diff-commit`): `critic` (bugs, risks, missing tests) + `simplifier` (reuse, anti-bloat, **Human-Reviewable Minimal Diff**).
-- **work** (`on_demand`): `diagnostician` (blind root-cause analysis from symptom + repro only when stuck or fixing unclear bugs).
-- **diff** (`3` parallel, for `/saw-diff-files`): `concept` (macro problem, abstractions, alignment map), `direction` (approach, structure, trade-offs), `detail` (concrete code/data/doc drift, contradictions, gaps).
+## How `/saw-run` Works
 
-### Customizing via `extends: general`
-
-Create `.saw/packs/<your-pack>.md` (optional custom prompt file in `.saw/lenses/<lens>.md`):
-
-```markdown
-# SAW Pack: backend-sec
-description: General workflow with security review and no reframe brainstorm
-extends: general
-
-| phase | lens | use | web | focus |
-|---|---|---|---|---|
-| brainstorm | reframe | off | no | - |
-| review | security | active | no | auth, permissions, injection, secret/PII handling |
+```mermaid
+flowchart LR
+    T["Task Prompt"] --> S["Spec<br/>(clarity Goldfish)"]
+    S --> C{"1x User<br/>Checkpoint"}
+    C -->|"Proceed"| PR["Pre-Review<br/>(critic + simplifier)"]
+    PR --> W["Work & Verify<br/>(real tests + optional diagnostician)"]
+    W --> DR["Post-Review<br/>(critic + simplifier)"]
+    DR --> SY["Sync Docs &<br/>Clean Temp Diffs"]
 ```
 
-Then run `/saw-run backend-sec add password reset endpoint` (or set `default-pack: backend-sec` in `.saw/profile.md`). Because read-only `saw-goldfish` workers load lenses dynamically from `.saw/`, custom packs work identically in Copilot, Claude Code, and Antigravity with zero per-harness agent boilerplate.
+*(Trivial 1-line fixes fast-path directly without Goldfish. Deep dive: [Architecture & Isolation](docs/architecture.md).)*
 
 ---
 
-## Project-Local Installation (`.envrc`-style)
+## Quick Start (60 Seconds)
 
-Install SAW directly into any repository so whichever supported harness opens that folder, SAW is ready automatically:
+**Prerequisites**: `bash`, `git` (plus authenticated `gh` CLI for GitHub PR triage in `/saw-diff-commit`).
 
 ```sh
-# Install all 3 harness adapters (default)
+git clone https://github.com/jheo4/simple-agentic-workflow.git
+cd simple-agentic-workflow
+
+# Install all 3 harness adapters (or --targets copilot,claude,antigravity)
 ./install.sh /path/to/your-project
 
-# Or pick specific harnesses
-./install.sh /path/to/your-project --targets copilot,claude,antigravity
-
-# Later updates (preserves .saw/profile.md and custom packs/lenses)
+# Later updates (preserves .saw/profile.md, custom packs/lenses, and custom skills;
+# refreshes built-in SAW files and prunes retired SAW skills)
 ./install.sh /path/to/your-project --update
 ```
 
-Installed layout inside `<your-project>/`:
+Open `/path/to/your-project` in your coding agent:
+- **Antigravity**: Start a new conversation / reload window (or run `/skills reload` in `agy` CLI), then run `/saw-setup`.
+- **GitHub Copilot (VS Code)**: Select the **`saw-elephant`** agent in Chat, then run `/saw-setup`.
+- **Claude Code**: Run `/saw-setup` directly *(adapter included; Layer 2 scorecard pending in [`probes/RUNBOOK.md`](probes/RUNBOOK.md))*.
 
-```text
-<your-project>/
-├── .saw/               # Single source of truth (protocol, profile, packs, lenses, gitignored work/)
-├── .github/            # GitHub Copilot adapter (copilot-instructions block, skills, saw-elephant/goldfish agents)
-├── .claude/            # Claude Code adapter (CLAUDE.md block, skills, read-only saw-goldfish agents)
-└── .agents/            # Antigravity adapter (AGENTS.md block, skills, .agents/plugins/saw/)
-```
-
-### Usage by Harness
-- **GitHub Copilot (VS Code)**: Select the **`saw-elephant`** agent in Chat, then run `/saw-setup` or `/saw-run ...`.
-- **Claude Code**: Run `/saw-setup` or `/saw-run ...` directly in the project directory.
-- **Antigravity**: Run `/skills reload` (or reload the window) once after installing, then run `/saw-setup` or `/saw-run ...` directly in the project directory (requires a surface with subagent support such as Antigravity CLI, App, or IDE Extension).
+Then run **`/saw-run <task>`** for end-to-end execution, or **`/saw-help`** anytime to view phases and active Goldfish lenses.
 
 ---
 
-## Verification & Harness Canary Probes
+## Commands & Examples
 
-- **Static & installer check (Layer 1)**: Run `./verify.sh` to validate skill frontmatter, `general.md` lens references, multi-target installs, and `--update` profile preservation.
-- **Interactive harness probes (Layer 2)**: Run `./probes/prepare-sandbox.sh` and follow [`probes/RUNBOOK.md`](probes/RUNBOOK.md) to verify skill discovery, Goldfish context isolation, pack inheritance, and `/saw-run` end-to-end behavior in any harness.
+### Start / Auto
+| Skill | When to Use |
+|---|---|
+| `/saw-setup` | Populate or refresh `.saw/profile.md` (stack, docs, verification commands). |
+| `/saw-run [pack] <task>` | Full auto flow: spec → 1 checkpoint → pre-review, work, tests, post-review, sync. |
+| `/saw-help [goal\|pack]` | Show workflow map, active Goldfish lenses per phase, or get a command pick. |
+
+### Manual Lifecycle
+| Skill | Phase & Lenses |
+|---|---|
+| `/saw-brainstorm [pack] <topic>` | `brainstorm` (`incremental`, `reframe`, `zoom`, `reality`) — pick the right task. |
+| `/saw-spec [pack] <task>` | `spec` (`clarity`) — draft scope, edge cases, and verification criteria. |
+| `/saw-review [pack] [spec\|diff\|focus]` | `review` (`critic`, `simplifier`) — refine a spec or pending changes. |
+| `/saw-work [pack] <spec\|task>` | `work` (`diagnostician` on demand + `review`) — implement, test, and review. |
+| `/saw-sync` | `sync` — pinpoint-sync `.saw/profile.md` and docs to current code on disk. |
+
+### Read-Only Diffs (No Checkout, No Edits)
+| Skill | Example & Purpose |
+|---|---|
+| `/saw-diff-commit [pack] <target>` | `/saw-diff-commit #123`, `HEAD~1..HEAD`, `feat-x` — defuse AI grenade PRs/commits (`review` phase). |
+| `/saw-diff-files [pack] <left> <right> [focus]` | `/saw-diff-files v1/ v2/`, `a.json b.yaml` — compare code, data, or docs (`diff` phase: `concept`, `direction`, `detail`). |
+
+---
+
+## Installed Layout & Verification
+
+<details>
+<summary>Installed files inside <code>&lt;your-project&gt;/</code> (click to expand)</summary>
+
+```text
+<your-project>/
+├── .saw/               # Core protocol, profile, packs, lenses, gitignored work/
+├── .github/            # Copilot: copilot-instructions.md, skills/, saw-elephant/goldfish agents
+├── .claude/            # Claude Code skills/ and read-only saw-goldfish agents
+├── .agents/            # Antigravity skills/ and .agents/plugins/saw/
+├── CLAUDE.md           # Claude Code SAW instructions block
+├── AGENTS.md           # Antigravity SAW instructions block
+└── .gitignore          # Appends .saw/work/
+```
+
+</details>
+
+- **Customization**: Extend `general` via `.saw/packs/<name>.md` instead of editing built-in files—see [Customizing Packs & Lenses](docs/customization.md).
+- **Layer 1 (Static & Installer)**: `./verify.sh` validates `install.sh`, YAML-safe skill frontmatter, `general.md` lenses, multi-target installs, `--update` preservation/pruning, and self-install.
+- **Layer 2 (Canary Probes)**: `./probes/prepare-sandbox.sh` + [`probes/RUNBOOK.md`](probes/RUNBOOK.md) (`P1`–`P6`).
+
+---
+
+## License
+
+[MIT](LICENSE)
