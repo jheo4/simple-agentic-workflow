@@ -12,7 +12,7 @@ doc-path: README.md
 
 ## Project docs
 - `README.md`: Architecture, workflow phases, `general` pack & inheritance, installation, and verification instructions.
-- `probes/RUNBOOK.md`: Layer 2 manual harness canary suite (`P1`–`P5`) and harness scorecard.
+- `probes/RUNBOOK.md`: Layer 2 manual harness canary suite (`P1`–`P6`) and harness scorecard.
 - `AGENTS.md` / `CLAUDE.md` / `.github/copilot-instructions.md`: Harness adapter instruction blocks.
 
 ## Verification commands
