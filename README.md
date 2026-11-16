@@ -9,8 +9,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
   <a href="#quick-start-60-seconds"><img src="https://img.shields.io/badge/Runtime-Bash%20%2B%20Markdown-2ea44f.svg" alt="Zero Dependencies" /></a>
-  <a href="probes/RUNBOOK.md#harness-scorecard"><img src="https://img.shields.io/badge/Verified-Antigravity%20%7C%20Copilot-brightgreen.svg" alt="Verified Harnesses" /></a>
-  <a href="probes/RUNBOOK.md#harness-scorecard"><img src="https://img.shields.io/badge/Claude%20Code-Adapter%20Included-lightgrey.svg" alt="Claude Code" /></a>
+  <a href="probes/RUNBOOK.md#harness-scorecard"><img src="https://img.shields.io/badge/Verified-Antigravity%20%7C%20Copilot%20%7C%20Claude%20Code-brightgreen.svg" alt="Verified Harnesses" /></a>
 </p>
 
 ---
@@ -58,7 +57,7 @@ cd simple-agentic-workflow
 Open `/path/to/your-project` in your coding agent:
 - **Antigravity** *(App, CLI, or VS Code extension)*: Start a new conversation / reload window (or run `/skills reload` in `agy` CLI), then run `/saw-setup`.
 - **GitHub Copilot** *(VS Code extension)*: Select the **`saw-elephant`** agent in Chat, then run `/saw-setup`.
-- **Claude Code** *(CLI or VS Code extension)*: Run `/saw-setup` directly *(adapter included; Layer 2 scorecard pending in [`probes/RUNBOOK.md`](probes/RUNBOOK.md))*.
+- **Claude Code** *(CLI or VS Code extension)*: Run `/saw-setup` directly.
 
 Then run **`/saw-run <task>`** for end-to-end execution, or **`/saw-help`** anytime to view phases and active Goldfish lenses.
 
