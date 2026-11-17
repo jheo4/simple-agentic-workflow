@@ -11,7 +11,7 @@ doc-path: docs/
 - Stack: <languages / frameworks / tools>
 
 ## Project docs
-- <path>: <what it covers>
+- <path>: <what it covers> — read when: <task type / dirs>
 
 ## Verification commands
 lint: not configured

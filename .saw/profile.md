@@ -11,11 +11,10 @@ doc-path: docs/
 - Stack: Bash (`install.sh`, `verify.sh`, `probes/prepare-sandbox.sh`) and Markdown skills/templates/adapters (plus Python `unittest` fixtures in `probes/sandbox-app/`).
 
 ## Project docs
-- `README.md`: Quick start, Mermaid overview, commands cheat sheet, and verification pointers.
-- `docs/architecture.md`: Elephant–Goldfish isolation model, diff-tool split, and core guardrails.
-- `docs/customization.md`: `general` pack reference, `extends: general` rules, custom lenses, and `--update` safety.
-- `probes/RUNBOOK.md`: Layer 2 manual harness canary suite (`P1`–`P6`) and harness scorecard.
-- `AGENTS.md` / `CLAUDE.md` / `.github/copilot-instructions.md`: Harness adapter instruction blocks.
+- `README.md`: Quick start, Mermaid overview, commands cheat sheet, and verification pointers — read when: changing user-facing commands, install flow, or the skill list.
+- `docs/architecture.md`: Elephant–Goldfish isolation model, diff-tool split, and core guardrails — read when: touching `templates/protocol.md`, `adapters/`, or Goldfish isolation.
+- `docs/customization.md`: `general` pack reference, `extends: general` rules, custom lenses, and `--update` safety — read when: touching `templates/packs/`, `templates/lenses/`, or `install.sh --update`.
+- `probes/RUNBOOK.md`: Layer 2 manual harness canary suite (`P1`–`P6`) and harness scorecard — read when: changing skill behavior that a canary probe checks.
 
 ## Verification commands
 lint: not configured

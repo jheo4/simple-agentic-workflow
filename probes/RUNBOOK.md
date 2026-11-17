@@ -35,6 +35,7 @@ Open `/tmp/saw-canary` in the harness under test:
 - `/saw-*` appears in slash autocomplete (after `/skills reload` or reload if needed).
 - `.saw/profile.md` updates from `status: not configured` to `status: configured`.
 - `test:` is set to `python3 -m unittest` (matches actual repo).
+- Profile lists no `.saw/` or `AGENTS.md`/`CLAUDE.md`/`.github/copilot-instructions.md` pointer (SAW-only files), keeps no `<…>` template placeholder lines, and shows no overview offer (trivial repo).
 
 ---
 
