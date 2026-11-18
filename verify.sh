@@ -11,11 +11,11 @@ fail() {
   exit 1
 }
 
-echo "[1/5] Checking install.sh syntax..."
+echo "[1/6] Checking install.sh syntax..."
 bash -n "$ROOT/install.sh" || fail "install.sh has syntax errors"
 [ -x "$ROOT/install.sh" ] || fail "install.sh is not executable"
 
-echo "[2/5] Checking skill frontmatter & folder names..."
+echo "[2/6] Checking skill frontmatter & folder names..."
 for skill_md in "$ROOT"/skills/saw-*/SKILL.md; do
   dir_name=$(basename "$(dirname "$skill_md")")
   fm_name=$(awk '/^---$/{f++; next} f==1 && $1=="name:"{sub(/^name:[[:space:]]*/, ""); print; exit}' "$skill_md" | tr -d '\r')
@@ -35,7 +35,7 @@ for skill_md in "$ROOT"/skills/saw-*/SKILL.md; do
   fi
 done
 
-echo "[3/5] Checking general.md lens references..."
+echo "[3/6] Checking general.md lens references..."
 while IFS='|' read -r _ phase lens use _; do
   lens=$(echo "$lens" | xargs)
   phase=$(echo "$phase" | xargs)
@@ -47,7 +47,7 @@ while IFS='|' read -r _ phase lens use _; do
   [ -f "$ROOT/templates/lenses/$lens.md" ] || fail "general.md references missing lens file: templates/lenses/$lens.md"
 done < <(grep '^|' "$ROOT/templates/packs/general.md")
 
-echo "[4/5] Testing install.sh across targets & --update preservation..."
+echo "[4/6] Testing install.sh across targets & --update preservation..."
 for target in all copilot claude antigravity; do
   proj="$TMP_BASE/proj-$target"
   mkdir -p "$proj"
@@ -97,7 +97,7 @@ printf '%s\n' '<!-- SAW:END -->' '<!-- SAW:BEGIN -->' 'user-keep' > "$bad_proj/A
 ! "$ROOT/install.sh" "$bad_proj" --targets antigravity --update 2>/dev/null || fail "reversed SAW markers should fail"
 grep -qxF "user-keep" "$bad_proj/AGENTS.md" || fail "reversed marker failure mutated AGENTS.md"
 
-echo "[5/5] Testing self-install (dogfooding) into a copied SAW root..."
+echo "[5/6] Testing self-install (dogfooding) into a copied SAW root..."
 self_saw="$TMP_BASE/self-saw"
 mkdir -p "$self_saw"
 cp -R "$ROOT/install.sh" "$ROOT/templates" "$ROOT/skills" "$ROOT/adapters" "$self_saw/"
@@ -113,5 +113,34 @@ cmp -s "$ROOT/templates/protocol.md" "$self_saw/templates/protocol.md" || fail "
 echo "self-custom-profile" >> "$self_saw/.saw/profile.md"
 "$self_saw/install.sh" "$self_saw" --update >/dev/null
 grep -qxF "self-custom-profile" "$self_saw/.saw/profile.md" || fail "self-install --update overwrote .saw/profile.md"
+
+echo "[6/6] Testing canary runner & sandbox builder..."
+canary="$ROOT/probes/canary.sh"
+prep="$ROOT/probes/prepare-sandbox.sh"
+bash -n "$canary" || fail "canary.sh has syntax errors"
+[ -x "$canary" ] || fail "probes/canary.sh is not executable"
+"$canary" --self-test >/dev/null || fail "canary.sh --self-test failed"
+set +e
+"$canary" foo </dev/null >/dev/null 2>&1; [ $? -eq 2 ] || fail "canary.sh should reject unknown harness with exit 2"
+"$canary" claude P9 </dev/null >/dev/null 2>&1; [ $? -eq 2 ] || fail "canary.sh should reject unknown probe with exit 2"
+"$prep" "$HOME" --check-dest >/dev/null 2>&1; [ $? -eq 2 ] || fail "prepare-sandbox.sh should refuse \$HOME"
+"$prep" "$ROOT/does-not-exist" --check-dest >/dev/null 2>&1; [ $? -eq 2 ] || fail "prepare-sandbox.sh should refuse a path inside the SAW repo"
+not_sandbox="$TMP_BASE/not-sandbox"
+mkdir -p "$not_sandbox" && git -C "$not_sandbox" init -q && echo keep >"$not_sandbox/keep.txt"
+"$prep" "$not_sandbox" --check-dest >/dev/null 2>&1; [ $? -eq 2 ] || fail "prepare-sandbox.sh should refuse a non-sandbox git repo"
+set -e
+[ -f "$not_sandbox/keep.txt" ] || fail "prepare-sandbox.sh touched a non-sandbox git repo"
+[ ! -e "$ROOT/does-not-exist" ] || fail "prepare-sandbox.sh created a path inside the SAW repo"
+sandbox="$TMP_BASE/canary"
+"$prep" "$sandbox" >/dev/null
+for ref in refs/tags/canary-baseline refs/tags/canary-configured refs/heads/canary/clean-fix refs/heads/canary/ai-grenade; do
+  git -C "$sandbox" rev-parse -q --verify "$ref" >/dev/null || fail "sandbox missing $ref"
+done
+[ "$(git -C "$sandbox" branch --show-current)" = "main" ] || fail "sandbox should be on main"
+[ "$(git -C "$sandbox" rev-parse main)" = "$(git -C "$sandbox" rev-parse canary-baseline)" ] || fail "sandbox main should be at canary-baseline"
+configured=$(git -C "$sandbox" show canary-configured:.saw/profile.md)
+grep -qx 'status: configured' <<<"$configured" || fail "canary-configured profile is not configured"
+grep -qx 'test: python3 -m unittest' <<<"$configured" || fail "canary-configured profile lacks test command"
+"$prep" "$sandbox" --check-dest || fail "prepare-sandbox.sh should accept an existing canary sandbox"
 
 echo "PASS: All Layer 1 SAW checks passed."

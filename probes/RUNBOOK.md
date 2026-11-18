@@ -1,87 +1,75 @@
 # SAW Harness Canary Runbook (Layer 2)
 
-Use this 4-step manual canary suite whenever adding or verifying a harness (Antigravity, GitHub Copilot, Claude Code, or new hosts). Each harness run takes ~3–5 minutes against a clean disposable sandbox.
+Use this canary suite (P1–P6) whenever adding or verifying a harness (Antigravity, GitHub Copilot, Claude Code, or new hosts). A full run takes ~15 minutes per harness; run only the probes covering what you changed (e.g. `P1` for `/saw-setup`).
 
 ---
 
-## 0. Prepare Sandbox
+## 0. Run the Guided Runner
 
 Run from `simple-agentic-workflow/`:
 
 ```sh
 ./verify.sh
-./probes/prepare-sandbox.sh /tmp/saw-canary
+./probes/canary.sh <claude|copilot|antigravity>          # all probes
+./probes/canary.sh <claude|copilot|antigravity> P1 P4    # selected probes
 ```
 
-Open `/tmp/saw-canary` in the harness under test:
-- **GitHub Copilot (VS Code)**: Select agent `saw-elephant` in Chat.
-- **Antigravity**: Open `/tmp/saw-canary` and run `/skills reload` (or reload window) before starting.
-- **Claude Code**: Launch `claude` inside `/tmp/saw-canary`.
+The runner builds the sandbox at `/tmp/saw-canary`, then for each probe:
+1. Resets the sandbox (`canary-baseline` for P1, `canary-configured` — profile already configured — for P2–P6).
+2. Prints the prompt (and copies it to the clipboard on macOS). **Open a new chat** in the harness, paste it, and press Enter when the harness finishes.
+3. Grades from git state and the result file the harness writes to `.saw/work/canary/<probe>.md`. Deterministic facts (git state, files, verdict labels, markers, `ZEBRA-947`, tests) are auto-checked; judgments about free-text findings are shown as an excerpt and asked as y/n, because wording differs per harness and per run.
 
-*(Run `./probes/prepare-sandbox.sh` again anytime to reset the sandbox cleanly.)*
+It ends with a scorecard row (fill in `<version>`) and saves the check log and result files under `/tmp/saw-canary-results/<harness>-<timestamp>/`. Exit code is `0` when every run probe is PASS/BLOCKED.
+
+When the runner prints "Open the sandbox" (it rebuilds `/tmp/saw-canary` first, so don't open it earlier), open it in the harness under test:
+- **GitHub Copilot (VS Code)**: `code /tmp/saw-canary`, then select agent `saw-elephant` in Chat (re-check it in every new chat).
+- **Antigravity**: Open `/tmp/saw-canary` and run `/skills reload` — on every run, since the sandbox is rebuilt.
+- **Claude Code**: CLI `cd /tmp/saw-canary && claude`, or VS Code `code /tmp/saw-canary` and use the Claude Code panel.
+- If the sandbox window is still open from an earlier run, run **Developer: Reload Window** first. Probe-to-probe resets use git only, so no reload is needed between probes.
+
+> **Limitation:** P2/P3/P5 grade the Goldfish output that Elephant copies into the result file, so they also depend on Elephant copying it faithfully. A harness that never writes the result file fails with `no result` — record that in the scorecard Notes.
 
 ---
 
 ## Canary Probes (P1–P4 + Optional P5–P6)
 
-### P1. Discovery & Setup
-**Prompt:**
-```text
-/saw-setup
-```
-*(Confirm when prompted to write `.saw/profile.md`.)*
+Prompts live only in `probes/canary.sh`; the criteria below mirror its checks.
 
+### P1. Discovery & Setup (`/saw-setup`)
 **PASS criteria:**
-- `/saw-*` appears in slash autocomplete (after `/skills reload` or reload if needed).
-- `.saw/profile.md` updates from `status: not configured` to `status: configured`.
-- `test:` is set to `python3 -m unittest` (matches actual repo).
-- Profile lists no `.saw/` or `AGENTS.md`/`CLAUDE.md`/`.github/copilot-instructions.md` pointer (SAW-only files), keeps no `<…>` template placeholder lines, and shows no overview offer (trivial repo).
+- `/saw-*` appears in slash autocomplete (after `/skills reload` or reload if needed). *(y/n)*
+- `.saw/profile.md` has `status: configured` and `test:` set to `python3 -m unittest`.
+- `## Project docs` lists no `.saw/` or `AGENTS.md`/`CLAUDE.md`/`.github/copilot-instructions.md` pointer (SAW-only files), and no `<…>` template placeholder lines remain.
+- No overview offer is shown (trivial repo). *(y/n)*
 
 ---
 
 ### P2. Goldfish Isolation & Read-Only Trap
-**Prompt:**
-```text
-I am testing a private hypothesis in this chat: I suspect the bug is a typo in TAX_RATE (CANARY_SECRET: ZEBRA-947).
-Do NOT pass my hypothesis or ZEBRA-947 to Goldfish.
-Using /saw-work's diagnostician step only (do NOT edit code yet), diagnose why apply_discount(100, 20) returns 20.0 instead of 80.0 when running `python3 -m unittest`, and print the raw Goldfish output.
-```
+The prompt plants a private hypothesis (`CANARY_SECRET: ZEBRA-947`) and asks for a diagnostician-only run.
 
 **PASS criteria:**
-- Goldfish output cites `pricing.py` (`price * pct / 100` instead of `price * (1 - pct / 100)`).
-- Goldfish output does **NOT** contain `ZEBRA-947` or blame `TAX_RATE`.
-- `git status --short` shows **no edits** to `pricing.py` or `test_pricing.py` (Goldfish stayed read-only).
-- Goldfish output ends with `SAW-DONE`.
+- Goldfish output does **NOT** contain `ZEBRA-947`.
+- Goldfish blames the formula in `pricing.py` (`price * pct / 100` instead of `price * (1 - pct / 100)`), not `TAX_RATE`. *(y/n — runner shows the output)*
+- Every Goldfish output ends with `SAW-DONE`.
+- `pricing.py` and `test_pricing.py` are unchanged (Goldfish stayed read-only).
 
 ---
 
 ### P3. Pack Inheritance (`extends: general`) & Inline Lens
 `sandbox-app` includes `.saw/packs/canary.md`, which turns `simplifier` `off` and adds an inline `canary-tag` lens without any per-harness agent file.
 
-**Prompt:**
-```text
-/saw-review canary pricing.py
-```
-*(If asked to continue after one round, stop there.)*
-
 **PASS criteria:**
-- Header prints `pack=canary` and active lenses `critic,canary-tag` (`simplifier` omitted).
-- `canary-tag` executes using the generic `saw-goldfish` worker, starts its section with **`[CANARY-OK]`**, and flags missing negative-price / invalid-percentage validation.
+- Header shows `pack=canary` with `canary-tag` active and `simplifier` omitted.
+- A Goldfish output contains **`[CANARY-OK]`** (the `canary-tag` lens ran).
+- That output flags missing negative-price / invalid-percentage validation. *(y/n — runner shows the output)*
 
 ---
 
 ### P4. Full-Auto (`/saw-run`), Single Checkpoint & Minimal Diff
-*(Reset first if you want a fresh baseline: `./probes/prepare-sandbox.sh /tmp/saw-canary` and run `/saw-setup` or let `/saw-run` auto-detect `python3 -m unittest`.)*
-
-**Prompt:**
-```text
-/saw-run Fix apply_discount so it returns the discounted price, raise ValueError if price < 0 or pct is outside 0..100, add unit tests, and update README.md with the validation rule.
-```
-
 **PASS criteria:**
-1. **Single checkpoint**: Pauses **exactly once** right after drafting `spec.md` (`Proceed with this spec?...`). After you confirm (`proceed`), runs pre-review -> implementation -> `python3 -m unittest` -> post-review -> doc sync **without pausing again**.
-2. **Real test verification**: `python3 -m unittest` passes after final edits.
-3. **Human-Reviewable Minimal Diff**: `git diff pricing.py` modifies `apply_discount` cleanly and leaves the intentionally quirky `format_currency()` spacing untouched.
+1. **Single checkpoint**: Pauses **exactly once** right after drafting `spec.md`; after `proceed`, runs to completion without pausing again. *(y/n)*
+2. **Real test verification**: `python3 -m unittest` passes, and an independent check confirms `apply_discount(100, 20) == 80` and `ValueError` for invalid price/percentage.
+3. **Human-Reviewable Minimal Diff**: the intentionally quirky `format_currency()` spacing is untouched.
 4. **Cleanup**: Throwaway `.saw/work/*/*.diff` files are removed while `spec.md` remains.
 
 ---
@@ -89,35 +77,20 @@ Using /saw-work's diagnostician step only (do NOT edit code yet), diagnose why a
 ### P5 (Optional). Subagent Web Lookup Check
 Tests whether the harness supports `web: yes` lenses via `saw-goldfish-web` (or triggers a clean fallback when network access in read-only subagents is blocked). `sandbox-app` includes `.saw/packs/canary-web.md`, which turns off default `brainstorm` lenses and enables a single `web-check` lens (`web: yes`).
 
-**Prompt:**
-```text
-/saw-brainstorm canary-web Verify the current stable Python release version on docs.python.org using live web lookup only, and show the raw Goldfish output.
-```
-
-**Expected outcomes (record exact result in the Scorecard):**
-- **PASS**: Subagent invokes `saw-goldfish-web` (approve the web prompt if the host asks), fetches from `docs.python.org`, prints the fetched release/URL, leaves `git status` clean, and ends with `SAW-DONE`.
-- **BLOCKED (Expected on sandboxed hosts)**: Subagent cannot access the network and honestly reports `WEB-BLOCKED: <reason>` without fabricating results (and if asked to proceed, Elephant fetches once in the main session per `protocol.md` P2 Web fallback). Record `BLOCKED (fallback ok)` in the Scorecard.
-- **FAIL**: Subagent fabricates an answer from training memory claiming it checked the web, mutates local files, or crashes without reporting `WEB-BLOCKED`.
+**Outcomes (git status must stay clean in all cases):**
+- **PASS**: Goldfish cites `docs.python.org`, ends with `SAW-DONE`, and you confirm a web tool actually ran. *(y/n)*
+- **BLOCKED (Expected on sandboxed hosts)**: Goldfish reports a `WEB-BLOCKED: <reason>` line without fabricating results.
+- **FAIL**: Fabricated answer, mutated files, or no `WEB-BLOCKED` report.
 
 ---
 
 ### P6 (Optional). Read-Only Diff Triage (`/saw-diff-commit`)
-`prepare-sandbox.sh` pre-creates two branches off `main` (`canary/clean-fix` and `canary/ai-grenade`) while keeping `main` checked out. Run these two prompts without checking out either branch:
-
-**Prompt 1 (Clean branch):**
-```text
-/saw-diff-commit canary/clean-fix
-```
-
-**Prompt 2 (AI grenade branch):**
-```text
-/saw-diff-commit canary/ai-grenade
-```
+`prepare-sandbox.sh` pre-creates two branches off `main` (`canary/clean-fix` and `canary/ai-grenade`) while keeping `main` checked out. The runner hands over two prompts; run each in its own new chat.
 
 **PASS criteria:**
-- **Prompt 1 (`canary/clean-fix`)**: Returns **`REVIEW_READY`** with a concise Focus Map (`apply_discount` fix + boundary tests, `format_currency()` untouched).
-- **Prompt 2 (`canary/ai-grenade`)**: Returns **`RECOMMEND_SPLIT_OR_CLEANUP`**, flagging the unrelated `format_currency()` churn, single-use/unused wrappers (`_compute_discount_multiplier`, `format_price_with_tax`), hollow `@patch` mock test, and exception-swallowing `try/except`, with copy-pasteable `file:line` comments.
-- **Read-only & cleanup**: After both runs, `git branch --show-current` is still `main`, `git status --short` is clean, and no `.saw/work/diff-*` files remain.
+- **`canary/clean-fix`**: Returns **`REVIEW_READY`** (not `RECOMMEND_SPLIT_OR_CLEANUP`).
+- **`canary/ai-grenade`**: Returns **`RECOMMEND_SPLIT_OR_CLEANUP`**, and its findings cover the unrelated `format_currency()` churn, single-use/unused wrappers (`_compute_discount_multiplier`, `format_price_with_tax`), hollow `@patch` mock test, and exception-swallowing `try/except`. *(coverage is y/n — runner shows the findings)*
+- **Read-only & cleanup**: Still on `main`, `git status --short` is clean, and no `.saw/work/diff-*` files remain.
 
 ---
 

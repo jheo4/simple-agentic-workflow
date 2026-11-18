@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Prepare a clean disposable git sandbox for Layer 2 SAW harness canary probes.
-# Usage: ./probes/prepare-sandbox.sh [dest-dir] [--targets all|copilot,claude,antigravity]
+# Usage: ./probes/prepare-sandbox.sh [dest-dir] [--targets all|copilot,claude,antigravity] [--check-dest]
 set -euo pipefail
 
 DEST="/tmp/saw-canary"
 TARGETS="all"
+CHECK_ONLY=0
 
 if [ $# -ge 1 ] && [[ "$1" != --* ]]; then
   DEST=$1
@@ -22,8 +23,12 @@ while [ $# -gt 0 ]; do
       TARGETS=${1#--targets=}
       shift
       ;;
+    --check-dest)
+      CHECK_ONLY=1
+      shift
+      ;;
     *)
-      echo "usage: $0 [dest-dir] [--targets all|copilot,claude,antigravity]" >&2
+      echo "usage: $0 [dest-dir] [--targets all|copilot,claude,antigravity] [--check-dest]" >&2
       exit 2
       ;;
   esac
@@ -31,6 +36,36 @@ done
 
 PROBES_DIR=$(cd "$(dirname "$0")" && pwd)
 SAW_ROOT=$(cd "$PROBES_DIR/.." && pwd)
+
+refuse() {
+  echo "error: refusing to use '$DEST' as a sandbox: $*" >&2
+  exit 2
+}
+
+# DEST is wiped with rm -rf below, so only accept a new/empty path or an earlier canary sandbox.
+check_dest() {
+  local parent base abs root
+  parent=$(dirname "$DEST")
+  base=$(basename "$DEST")
+  case "$base" in
+    / | . | ..) refuse "not a plain directory name" ;;
+  esac
+  [ -d "$parent" ] || refuse "parent directory does not exist"
+  abs="$(cd "$parent" && pwd -P)/$base"
+  root=$(cd "$SAW_ROOT" && pwd -P)
+  case "$abs/" in
+    "$root"/*) refuse "inside the SAW repo" ;;
+  esac
+  [ ! -e "$abs" ] || [ -d "$abs" ] || refuse "exists and is not a directory"
+  if [ -d "$abs" ] && [ -n "$(ls -A "$abs")" ]; then
+    [ "$(git -C "$abs" rev-parse --show-toplevel 2>/dev/null)" = "$abs" ] \
+      && git -C "$abs" rev-parse -q --verify refs/tags/canary-baseline >/dev/null \
+      || refuse "non-empty and not a canary sandbox (if it is an old or half-built sandbox, remove it: rm -rf '$abs')"
+  fi
+}
+
+check_dest
+[ "$CHECK_ONLY" -eq 0 ] || exit 0
 
 rm -rf "$DEST"
 mkdir -p "$DEST"
@@ -44,8 +79,11 @@ cp -R "$PROBES_DIR/sandbox-app/." "$DEST/"
   git checkout -B main >/dev/null 2>&1 || true
   git config user.name "SAW Canary"
   git config user.email "canary@example.invalid"
+  git config commit.gpgSign false
+  git config tag.gpgSign false
   git add -A
   git commit -q -m "chore: baseline canary sandbox with SAW installed"
+  git tag canary-baseline
 
   # Canary branches for P6 (/saw-diff-commit); main stays unchanged for P1-P5.
   git checkout -q -b canary/clean-fix main
@@ -153,8 +191,18 @@ EOF
   git add pricing.py test_pricing.py
   git commit -q -m "fix: update apply_discount and clean up pricing helpers"
 
+  # Configured-profile baseline for P2-P6 so /saw-* skills don't stop for setup questions.
+  git checkout -q --detach canary-baseline
+  sed -i.bak -e 's/^status: not configured$/status: configured/' \
+    -e 's/^test: not configured$/test: python3 -m unittest/' .saw/profile.md
+  rm .saw/profile.md.bak
+  grep -qx 'status: configured' .saw/profile.md && grep -qx 'test: python3 -m unittest' .saw/profile.md \
+    || { echo "error: could not configure sandbox profile" >&2; exit 1; }
+  git commit -q -am "chore: configure canary profile"
+  git tag canary-configured
+
   git checkout -q main
 )
 
-echo "Canary sandbox ready at: $DEST (targets: $TARGETS)"
-echo "Next: open $DEST in your target harness and follow $PROBES_DIR/RUNBOOK.md"
+echo "Canary sandbox ready at: $DEST (targets: $TARGETS; tags: canary-baseline, canary-configured)"
+echo "Next: run $PROBES_DIR/canary.sh <claude|copilot|antigravity> (see $PROBES_DIR/RUNBOOK.md)"

@@ -111,7 +111,7 @@ Commands marked `[pack]` take an optional pack from `.saw/packs/<pack>.md` first
 
 - **Customization**: Extend `general` via `.saw/packs/<name>.md` instead of editing built-in files—see [Customizing Packs & Lenses](docs/customization.md).
 - **Layer 1 (Static & Installer)**: `./verify.sh` validates `install.sh`, YAML-safe skill frontmatter, `general.md` lenses, multi-target installs, `--update` preservation/pruning, and self-install.
-- **Layer 2 (Canary Probes)**: `./probes/prepare-sandbox.sh` + [`probes/RUNBOOK.md`](probes/RUNBOOK.md) (`P1`–`P6`).
+- **Layer 2 (Canary Probes)**: `./probes/canary.sh <harness>` (guided runner) + [`probes/RUNBOOK.md`](probes/RUNBOOK.md) (`P1`–`P6`).
 
 ---
 
