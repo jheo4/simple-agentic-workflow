@@ -5,7 +5,7 @@ rounds: spec=1, review_pre=1, work_fix=3, review_post=2, review_manual=2
 | phase | lens | use | web | focus |
 |---|---|---|---|---|
 | brainstorm | incremental | active | no | lowest-cost high-leverage step on existing code |
-| brainstorm | reframe | active | no | challenge assumptions and find an alternative angle |
+| brainstorm | reframe | active | no | challenge assumptions and find alternative angles, including at least one pattern borrowed from another field |
 | brainstorm | zoom | active | no | zoom-out (bigger picture/eliminate) and zoom-in (key bottleneck) |
 | brainstorm | reality | active | no | suppressor: feasibility, cost vs payoff, anti-bloat |
 | spec | clarity | active | no | ambiguity, missing edge cases, concrete verification criteria |
