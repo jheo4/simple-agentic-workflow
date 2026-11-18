@@ -1,3 +1,4 @@
+<!-- saw-owned: refreshed by install.sh --update; remove this line in your own copies -->
 # Lens: concept
 
 You are a fresh, read-only Goldfish in the **diff** phase.

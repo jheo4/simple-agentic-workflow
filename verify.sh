@@ -46,6 +46,9 @@ while IFS='|' read -r _ phase lens use _; do
   [ "$use" = "off" ] && continue
   [ -f "$ROOT/templates/lenses/$lens.md" ] || fail "general.md references missing lens file: templates/lenses/$lens.md"
 done < <(grep '^|' "$ROOT/templates/packs/general.md")
+markers=$(for lens in "$ROOT"/templates/lenses/*.md; do head -n 1 "$lens"; done | sort -u)
+[ "$(wc -l <<<"$markers" | tr -d ' ')" -eq 1 ] || fail "templates/lenses/*.md must share one saw-owned first line"
+[[ "$markers" == "<!-- saw-owned"* ]] || fail "templates/lenses/*.md first line must start with <!-- saw-owned"
 
 echo "[4/6] Testing install.sh across targets & --update preservation..."
 for target in all copilot claude antigravity; do
@@ -113,6 +116,30 @@ cmp -s "$ROOT/templates/protocol.md" "$self_saw/templates/protocol.md" || fail "
 echo "self-custom-profile" >> "$self_saw/.saw/profile.md"
 "$self_saw/install.sh" "$self_saw" --update >/dev/null
 grep -qxF "self-custom-profile" "$self_saw/.saw/profile.md" || fail "self-install --update overwrote .saw/profile.md"
+
+# Lens ownership: custom (marker-less) vs marker-owned vs pre-marker built-in
+lens_src="$self_saw/templates/lenses"
+lens_dst="$self_saw/.saw/lenses"
+for new_lens in zz-new zz-owned; do
+  { head -n 1 "$lens_src/critic.md"; echo "# Lens: $new_lens"; } > "$lens_src/$new_lens.md"
+done
+echo "# My own zz-new lens" > "$lens_dst/zz-new.md"
+cp "$lens_dst/zz-new.md" "$TMP_BASE/zz-new.expected"
+{ cat "$lens_src/zz-owned.md"; echo "local edit"; } > "$lens_dst/zz-owned.md"
+{ tail -n +2 "$lens_src/critic.md"; echo "local edit"; } > "$lens_dst/critic.md"
+check_custom_lens() {
+  cmp -s "$TMP_BASE/zz-new.expected" "$lens_dst/zz-new.md" || fail "$1: custom zz-new.md was overwritten"
+  [ "$(grep -c 'zz-new' <<<"$2")" -eq 1 ] || fail "$1: zz-new.md should be reported exactly once"
+  grep 'zz-new' <<<"$2" | grep -qF '(custom lens' || fail "$1: zz-new.md not reported as custom lens"
+}
+out_lens=$("$self_saw/install.sh" "$self_saw")
+check_custom_lens "no --update" "$out_lens"
+grep 'zz-owned' <<<"$out_lens" | grep -qvF '(custom lens' || fail "no --update: marker-owned zz-owned.md should be a normal conflict"
+grep -qxF "local edit" "$lens_dst/zz-owned.md" || fail "no --update: overwrote marker-owned zz-owned.md"
+out_lens=$("$self_saw/install.sh" "$self_saw" --update)
+check_custom_lens "--update" "$out_lens"
+cmp -s "$lens_src/zz-owned.md" "$lens_dst/zz-owned.md" || fail "--update did not refresh marker-owned zz-owned.md"
+cmp -s "$lens_src/critic.md" "$lens_dst/critic.md" || fail "--update did not refresh pre-marker critic.md"
 
 echo "[6/6] Testing canary runner & sandbox builder..."
 canary="$ROOT/probes/canary.sh"

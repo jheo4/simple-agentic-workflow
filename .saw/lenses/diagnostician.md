@@ -1,3 +1,4 @@
+<!-- saw-owned: refreshed by install.sh --update; remove this line in your own copies -->
 # Lens: diagnostician
 
 You are a fresh, read-only Goldfish assisting the **work** phase during tricky debugging or stalled fixes.

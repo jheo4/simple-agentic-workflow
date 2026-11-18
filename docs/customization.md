@@ -41,7 +41,7 @@ rounds: review_post=3
 | phase | lens | use | web | focus |
 |---|---|---|---|---|
 | brainstorm | reframe | off | no | - |
-| review | security | active | yes | auth, permissions, injection, secret/PII handling |
+| review | myproj-security | active | yes | auth, permissions, injection, secret/PII handling |
 ```
 
 ### Resolution Rules (Protocol P0 & P2)
@@ -57,7 +57,7 @@ rounds: review_post=3
 Adding a `.md` file is **optional**—when omitted, Goldfish runs in **inline lens mode**, driven solely by the pack row's `focus` column. For deeper rules, create `.saw/lenses/<lens>.md` (see [`templates/lenses/clarity.md`](../templates/lenses/clarity.md) or [`templates/lenses/simplifier.md`](../templates/lenses/simplifier.md) for built-in examples; custom `review` lenses receive `TARGET_TYPE = pre-work | post-work` so they work on both specs and diffs):
 
 ```markdown
-# Lens: security
+# Lens: myproj-security
 You are a fresh, read-only Goldfish in the **review** phase (`TARGET_TYPE`: `pre-work` or `post-work`).
 Do not modify any files or ask questions.
 
@@ -73,11 +73,14 @@ Required final line:
 - **`brainstorm` / `diff` phases, or `diagnostician` (`work` phase)**: `SAW-DONE`
 - **`spec` / `review` phases**: `SAW-STATUS: OK` or `SAW-STATUS: SUGGEST`
 
+**Naming**: Unprefixed lens names are reserved for SAW built-ins. Name custom lenses—files and inline pack rows alike—with a project prefix (e.g. `myproj-security`, `myproj-analogy`) so a future built-in can never collide with them. If you copy a built-in lens as a starting point, delete its first `<!-- saw-owned … -->` line.
+
 ---
 
 ## 4. Upgrade Safety (`./install.sh <dir>`)
 
 - **Without `--update` (`UPDATE=0`)**: Existing modified SAW-owned files are skipped as conflicts (`conflicts`) and retired SAW skills are left untouched.
+- **Custom lens vs. new built-in (both modes)**: If SAW starts shipping a lens whose name matches your marker-less `.saw/lenses/<lens>.md`, your file is never copied over; it is reported under `kept` so you can rename it.
 - **With `--update` (`UPDATE=1`)**:
   - **Preserved (Project-Owned)**: `.saw/profile.md`, custom `.saw/packs/*.md` (other than `general.md`), custom `.saw/lenses/*.md`, custom user skills (including custom `saw-*`), and instructions outside `<!-- SAW:BEGIN -->...<!-- SAW:END -->`.
-  - **Refreshed (SAW-Owned)**: `.saw/protocol.md`, `.saw/packs/general.md`, built-in `.saw/lenses/*.md`, built-in `saw-*` skills/agents, `SAW` instruction blocks, plus pruning retired built-in SAW skills (configured in [`install.sh`](../install.sh)).
+  - **Refreshed (SAW-Owned)**: `.saw/protocol.md`, `.saw/packs/general.md`, built-in `.saw/lenses/*.md` (files carrying the `<!-- saw-owned … -->` first line), built-in `saw-*` skills/agents, `SAW` instruction blocks, plus pruning retired built-in SAW skills (configured in [`install.sh`](../install.sh)).

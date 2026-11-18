@@ -9,7 +9,7 @@
 #
 # Ownership:
 #   SAW-owned (refreshed on --update; retired saw-* skills pruned on --update):
-#     .saw/protocol.md, .saw/packs/general.md, .saw/lenses/{incremental,reframe,zoom,reality,clarity,critic,simplifier,diagnostician,concept,direction,detail}.md
+#     .saw/protocol.md, .saw/packs/general.md, .saw/lenses/*.md carrying the saw-owned marker (plus pre-marker built-ins)
 #     Harness skills/agents & <!-- SAW:BEGIN -->...<!-- SAW:END --> blocks
 #   Project-owned (never overwritten):
 #     .saw/profile.md, custom .saw/packs/*.md, custom .saw/lenses/*.md, custom skills, existing user instructions outside SAW markers
@@ -162,6 +162,20 @@ install_block() {
 }
 
 RETIRED_SKILLS=(saw-commit-diff saw-diff)
+# Frozen: lenses shipped before the marker. Never add new lenses here; new lenses rely on the marker.
+PRE_MARKER_LENSES=(incremental reframe zoom reality clarity critic simplifier diagnostician concept direction detail)
+
+# An existing lens file is custom (project-owned) if its first line lacks the saw-owned
+# marker prefix (stable across marker wording changes) and it is not a pre-marker built-in.
+is_custom_lens() {
+  local dst=$1 name=$2 old
+  [ -e "$dst" ] || return 1
+  [[ "$(head -n 1 "$dst" | tr -d '\r')" == "<!-- saw-owned"* ]] && return 1
+  for old in "${PRE_MARKER_LENSES[@]}"; do
+    [ "$name" = "$old" ] && return 1
+  done
+  return 0
+}
 
 install_skills_into() {
   local prefix=$1
@@ -188,6 +202,10 @@ copy_owned "templates/packs/general.md" ".saw/packs/general.md"
 for lens in "$SRC"/templates/lenses/*.md; do
   [ -f "$lens" ] || continue
   lens_name=$(basename "$lens")
+  if is_custom_lens "$TARGET/.saw/lenses/$lens_name" "${lens_name%.md}"; then
+    kept+=(".saw/lenses/$lens_name (custom lens; SAW now ships this name — rename yours)")
+    continue
+  fi
   copy_owned "templates/lenses/$lens_name" ".saw/lenses/$lens_name"
 done
 
