@@ -35,4 +35,4 @@ Package pending changes into `<work>/review-round<N>.diff` (P4) and run active `
 - In manual `/saw-work` mode, if `review_post` ends with open suggestions, ask whether to do one more round or wrap up.
 
 ## 6. Clean Up & Report
-Delete throwaway `.diff` / `baseline/` snapshots; summarize files changed, verification command outputs, and any skipped review notes, then end with `Next: /saw-sync` (if docs/profile changed).
+Delete throwaway `.diff` / `baseline/` snapshots; summarize files changed, verification command outputs, and any skipped review notes, then end with `Next: /saw-sync` (re-checks profile and listed docs against the new code). If this work created, moved, or deleted a doc file, append those paths (old and new for moves): `Next: /saw-sync <doc paths>`.

@@ -40,10 +40,11 @@ Build `<work>/review-round<N>.diff` (P4) and run active `review` lenses (`critic
 - Re-run verification commands after the final code edit.
 
 ## 5. Phase: Sync & Final Report
-1. Update `.saw/profile.md` (or referenced project docs) via minimal pinpoint diffs ONLY if stack/commands/doc pointers actually changed.
+1. Patch `.saw/profile.md` and docs listed under `## Project docs` (and READMEs if touched/outdated) via minimal pinpoint diffs where this run made them inaccurate; never add, remove, or repoint `## Project docs` entries here.
 2. Delete throwaway `.diff` / `baseline/` snapshots (keep `spec.md`).
 3. Present one concise final summary:
    - What changed (files + brief summary)
    - Verification commands run & exact observed results
    - Key Goldfish suggestions applied vs skipped (1 line each)
-   - Docs/profile synced (if any)
+   - Docs/profile synced (list each doc file edited)
+4. If this run created, moved, or deleted a doc file, end with `Next: /saw-sync <those doc paths>` (old and new for moves; sync proposes the pointer changes).

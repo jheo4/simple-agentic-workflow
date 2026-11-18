@@ -81,7 +81,7 @@ Commands marked `[pack]` take an optional pack from `.saw/packs/<pack>.md` first
 | `/saw-spec [pack] <task>` | `spec` (`clarity`) — draft scope, edge cases, and verification criteria. |
 | `/saw-review [pack] [spec\|diff\|focus]` | `review` (`critic`, `simplifier`) — refine a spec or pending changes. |
 | `/saw-work [pack] <spec\|task>` | `work` (`diagnostician` on demand + `review`) — implement, test, and review. |
-| `/saw-sync` | `sync` — pinpoint-sync `.saw/profile.md` and docs to current code on disk. |
+| `/saw-sync [doc paths]` | `sync` — pinpoint-sync `.saw/profile.md` and docs to current code on disk; proposes pointers for given doc paths. |
 
 ### Read-Only Diffs (No Checkout, No Edits)
 | Skill | Example & Purpose |
