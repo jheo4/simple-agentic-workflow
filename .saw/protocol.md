@@ -50,7 +50,7 @@ Every lens runs through a fresh read-only Goldfish subagent.
   Pass ONLY:
   1. `LENS`: `.saw/lenses/<lens>.md` (if present) and/or inline `FOCUS: <pack row focus>`
   2. `PROFILE`: `.saw/profile.md` (so Goldfish knows relevant doc pointers)
-  3. `TARGET`: Only the phase-specific target (e.g., `SEED`, `SPEC`, `DIFF_PATH`, or `SYMPTOM` + `REPRO`)
+  3. `TARGET`: Only the phase-specific target (e.g., `SEED`, `SPEC`, `DIFF_PATH`, or `SYMPTOM` + `REPRO`). Post-work review in `/saw-work` and `/saw-run` adds the task's spec, if any, as `SPEC: <path> (reference only; review DIFF_PATH)`.
   Never pass chat history, your personal hunch/hypothesis, other Goldfish outputs, or prior-round rebuttals.
 - **Parallelism**: Run independent lenses in the same phase/round in parallel when the harness supports it.
 
@@ -69,6 +69,7 @@ How Elephant handles `SUGGEST` depends on how the skill was invoked:
 - **Inside standalone manual skills (`/saw-review`, `/saw-spec`, `/saw-work`)**:
   - Within `rounds`, apply fixes and loop if useful.
   - If `rounds` is reached and non-trivial suggestions remain unapplied, ask the user concisely: **"Run one more round, or wrap up here?"**
+- **Post-work (both modes)**: Change the spec only on user request; a spec-conformance finding already skipped with a recorded reason does not count as an open suggestion.
 
 ## P4. Diff Packaging for Code Review
 

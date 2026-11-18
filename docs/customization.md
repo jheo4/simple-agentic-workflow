@@ -54,7 +54,7 @@ rounds: review_post=3
 
 ## 3. Writing a Custom Lens (`.saw/lenses/<lens>.md`)
 
-Adding a `.md` file is **optional**—when omitted, Goldfish runs in **inline lens mode**, driven solely by the pack row's `focus` column. For deeper rules, create `.saw/lenses/<lens>.md` (see [`templates/lenses/clarity.md`](../templates/lenses/clarity.md) or [`templates/lenses/simplifier.md`](../templates/lenses/simplifier.md) for built-in examples; custom `review` lenses receive `TARGET_TYPE = pre-work | post-work` so they work on both specs and diffs):
+Adding a `.md` file is **optional**—when omitted, Goldfish runs in **inline lens mode**, driven solely by the pack row's `focus` column. For deeper rules, create `.saw/lenses/<lens>.md` (see [`templates/lenses/clarity.md`](../templates/lenses/clarity.md) or [`templates/lenses/simplifier.md`](../templates/lenses/simplifier.md) for built-in examples; custom `review` lenses receive `TARGET_TYPE = pre-work | post-work` so they work on both specs and diffs; in `/saw-work` and `/saw-run` post-work they also get the task spec as SPEC (reference only)):
 
 ```markdown
 # Lens: myproj-security

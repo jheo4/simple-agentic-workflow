@@ -18,6 +18,7 @@ Catch real defects, blind spots, and failure modes before they reach users or gi
 - **Correctness bugs**: Logic errors, off-by-one, null/empty states, race conditions, broken error handling.
 - **Unintended side effects**: Regressions in callers or adjacent flows.
 - **Test integrity**: Missing tests for changed behavior, assertions that test mocks instead of real logic, or leftover debug code.
+- **Spec conformance** (only if `SPEC` is given): In-scope items missing or partly done, or Verification Criteria that call for a new or changed test the diff does not add (ignore command-run or manual checks).
 
 ## Output
 - Numbered list of concrete findings only, citing `file:line` where applicable and stating the consequence + concrete fix.

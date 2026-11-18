@@ -27,7 +27,7 @@ flowchart LR
 Per Rule **P2** in [`templates/protocol.md`](../templates/protocol.md) (installed to `.saw/protocol.md`), Elephant passes **only**:
 - **`LENS`**: The read-only stance prompt (`.saw/lenses/<lens>.md` and/or the pack row's inline `focus`), ending in `SAW-DONE` (for `brainstorm`/`diff`/`diagnostician`) or `SAW-STATUS: OK|SUGGEST` (for `spec`/`review`).
 - **`PROFILE`**: Project summary, doc pointers, and verification commands (`.saw/profile.md`).
-- **`TARGET`**: Only the phase artifact — `SEED` (brainstorm prompt), `SPEC` (task spec), `DIFF_PATH` (diff packaged into `.saw/work/...` by Elephant because Goldfish has no shell), `SYMPTOM + REPRO` (failing test/logs for blind bug diagnosis), or `LEFT/RIGHT` (packaged file/dir comparison).
+- **`TARGET`**: Only the phase artifact — `SEED` (brainstorm prompt), `SPEC` (task spec), `DIFF_PATH` (diff packaged into `.saw/work/...` by Elephant because Goldfish has no shell), `SYMPTOM + REPRO` (failing test/logs for blind bug diagnosis), or `LEFT/RIGHT` (packaged file/dir comparison); post-work review in `/saw-work` and `/saw-run` also gets SPEC as reference.
 
 Hiding chat history and hunches prevents confirmation bias where an agent validates its own assumptions.
 

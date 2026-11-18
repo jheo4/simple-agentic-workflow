@@ -29,7 +29,7 @@ Run commands from `## Verification commands` in `.saw/profile.md` (and any task-
 - If still failing after `work_fix` attempts, stop and report exact failures and attempted fixes.
 
 ## 5. Post-Work Diff Review
-Package pending changes into `<work>/review-round<N>.diff` (P4) and run active `review` lenses (`critic` + `simplifier`) up to `rounds.review_post` (default `2`):
+Package pending changes into `<work>/review-round<N>.diff` (P4) and run active `review` lenses (default: `critic` + `simplifier`; `TARGET_TYPE = post-work`; if the task started from a spec, add `SPEC: <that path> (reference only; review DIFF_PATH)`) up to `rounds.review_post` (default `2`):
 - Fix real bugs, missing test assertions, or noisy/unreadable diff churn; note 1-line reasons for skipped items.
 - Re-run verification commands after any final edit.
 - In manual `/saw-work` mode, if `review_post` ends with open suggestions, ask whether to do one more round or wrap up.

@@ -23,7 +23,7 @@ If the request is clearly trivial (typo, comment, single-line tweak), tell the u
    - Once confirmed, run Steps 2–5 **non-stop** without pausing for intermediate approvals.
 
 ## 2. Phase: Pre-Work Review (Non-Stop)
-Run active `review` lenses (`critic` + `simplifier`, `TARGET_TYPE = pre-work`) on `spec.md` up to `rounds.review_pre` (default `1`).
+Run active `review` lenses (default: `critic` + `simplifier`; `TARGET_TYPE = pre-work`) on `spec.md` up to `rounds.review_pre` (default `1`).
 - Apply pragmatic improvements directly to `spec.md` (and note 1-line reasons for skipped items). Advance automatically.
 
 ## 3. Phase: Work & Verify (Non-Stop)
@@ -35,7 +35,7 @@ Implement `spec.md` following **Human-Reviewable Minimal Diff**:
   *(Only halt early if verification commands still fail after `work_fix` retries and cannot proceed safely.)*
 
 ## 4. Phase: Post-Work Diff Review (Non-Stop)
-Build `<work>/review-round<N>.diff` (P4) and run active `review` lenses (`critic` + `simplifier`, `TARGET_TYPE = post-work`) up to `rounds.review_post` (default `2`):
+Build `<work>/review-round<N>.diff` (P4) and run active `review` lenses (default: `critic` + `simplifier`; `TARGET_TYPE = post-work`; add `SPEC: <spec.md path> (reference only; review DIFF_PATH)`) up to `rounds.review_post` (default `2`):
 - Fix concrete defects or diff-hygiene issues; record 1-line reasons for skipped items.
 - Re-run verification commands after the final code edit.
 
