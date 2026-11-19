@@ -102,8 +102,8 @@ Tests whether the harness supports `web: yes` lenses via `saw-goldfish-web` (or,
 
 | Harness | Version / Surface | Date | P1 Setup | P2 Isolation | P3 Pack Extends | P4 `/saw-run` | P5 Web | P6 Diff (Opt) | Notes |
 |---|---|---|---|---|---|---|---|---|---|
-| Antigravity | VS Code Extension 1.12.0 | 2026-11-15 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Run `/skills reload` once after install |
-| GitHub Copilot | Copilot Chat v0.74.0 | 2026-11-15 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Claude Code | VS Code Extension 2.1.325 | 2026-11-16 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | |
+| Antigravity | VS Code Extension 1.12.0 | 2026-11-19 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Run `/skills reload` once after install |
+| GitHub Copilot | Copilot Chat v0.74.0 | 2026-11-19 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | |
+| Claude Code | VS Code Extension 2.1.325 | 2026-11-19 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | |
 
 > Rows dated before 2026-11-18 predate web-on-by-default and the lens/spec-conformance changes; re-run P2–P6 before relying on them.
