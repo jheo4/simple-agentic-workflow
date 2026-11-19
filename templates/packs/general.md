@@ -1,5 +1,5 @@
 # SAW Pack: general
-description: Practical general software workflow (balanced diverge/suppress brainstorm, clarity spec, dual-tension review, on-demand blind diagnosis)
+description: Practical general workflow (balanced diverge/suppress brainstorm, clarity spec, dual-tension review, on-demand blind diagnosis)
 rounds: spec=1, review_pre=1, work_fix=3, review_post=2, review_manual=2
 
 | phase | lens | use | web | focus |

@@ -54,9 +54,9 @@ flowchart TD
 ## 3. Core Guardrails & Loop Policy
 
 1. **Human-Reviewable Minimal Diff**: Keep edits scoped to the task—no drive-by refactors, import shuffling, or cryptic diff-golfing.
-2. **Verify Against Reality**: Never report checks as passing unless real commands from `.saw/profile.md` ran after the final edit.
+2. **Verify Against Reality**: Never report checks as passing unless real commands from `.saw/profile.md` ran after the final edit; spec items no command can test pass only on evidence cited after the final edit, otherwise they are marked manual.
 3. **Fast-Path Trivial Edits**: Typos, comments, and 1-line config tweaks skip Goldfish and run verification directly.
 4. **Bounded Loops (`rounds`)**: Default caps in `.saw/packs/general.md` (see [Customizing Packs & Lenses](customization.md)) are `spec=1` (clarity checks), `review_pre=1` (spec review), `work_fix=3` (verify-fix retries), `review_post=2` (post-work diff review), and `review_manual=2` (standalone `/saw-review` rounds):
-   - In `/saw-run` (auto mode), Elephant applies valid fixes or records 1-line skip reasons, advancing automatically when `spec`, `review_pre`, or `review_post` reaches its cap—but **halts early** if verification commands still fail after `work_fix` retries.
+   - In `/saw-run` (auto mode), Elephant applies valid fixes or records 1-line skip reasons, advancing automatically when `spec`, `review_pre`, or `review_post` reaches its cap—but **halts early** if verification commands or Verification Criteria items still fail after `work_fix` retries.
    - In manual skills (`/saw-spec`, `/saw-review`, `/saw-work`), Elephant asks whether to run another round or wrap up if open suggestions remain at the cap.
 5. **Never Commit Unasked**: `git commit` and `git push` run only on explicit user request.

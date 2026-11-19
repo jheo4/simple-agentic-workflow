@@ -12,7 +12,10 @@ Do not over-ceremonialize. Keep outputs short, decisions practical, and diffs hu
 2. **Human-Reviewable Minimal Diff**:
    - Keep code and doc changes tightly scoped to the task. No drive-by refactoring, unrelated formatting/import churn, or wholesale file rewrites.
    - Never sacrifice clarity for line-count tricks (no cramped one-liners or cryptic golfing). Optimize for a human reading the diff cleanly in a few minutes.
-3. **Verify against reality**: Run actual test/lint/check commands from `.saw/profile.md`. Never claim a test passed without running it.
+3. **Verify against reality**:
+   - Run actual test/lint/check commands from `.saw/profile.md`. Never claim a test passed without running it.
+   - Mark each Verification Criteria item pass or fail only after running it or citing evidence after the final edit (file:line or section; for a rule over many items, check each one and say how many); otherwise mark it manual, with a 1-line reason. Items that need human judgment are always manual.
+   - Treat a failed item like a failed command.
 4. **Fast-path trivial edits**: For single-line config tweaks, typos, comments, or dead-code removal, skip Goldfish calls and run relevant checks directly.
 
 ## P0. Parse Arguments & Resolve Pack

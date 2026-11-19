@@ -24,15 +24,15 @@ Follow the spec/task cleanly:
 - Add or update focused tests matching the spec's Verification Criteria.
 
 ## 4. Verification Loop
-Run commands from `## Verification commands` in `.saw/profile.md` (and any task-specific tests).
+Run commands from `## Verification commands` in `.saw/profile.md` (and any task-specific tests), then check each spec Verification Criteria item.
 - If failures occur, fix and re-run up to `rounds.work_fix` (default `3`).
 - If still failing after `work_fix` attempts, stop and report exact failures and attempted fixes.
 
 ## 5. Post-Work Diff Review
 Package pending changes into `<work>/review-round<N>.diff` (P4) and run active `review` lenses (default: `critic` + `simplifier`; `TARGET_TYPE = post-work`; if the task started from a spec, add `SPEC: <that path> (reference only; review DIFF_PATH)`) up to `rounds.review_post` (default `2`):
 - Fix real bugs, missing test assertions, or noisy/unreadable diff churn; note 1-line reasons for skipped items.
-- Re-run verification commands after any final edit.
+- Re-run verification commands and re-check spec Verification Criteria items after any final edit.
 - In manual `/saw-work` mode, if `review_post` ends with open suggestions, ask whether to do one more round or wrap up.
 
 ## 6. Clean Up & Report
-Delete throwaway `.diff` / `baseline/` snapshots; summarize files changed, verification command outputs, and any skipped review notes, then end with `Next: /saw-sync` (re-checks profile and listed docs against the new code). If this work created, moved, or deleted a doc file, append those paths (old and new for moves): `Next: /saw-sync <doc paths>`.
+Delete throwaway `.diff` / `baseline/` snapshots; summarize files changed, verification command outputs, each Verification Criteria item marked pass / fail / manual (if there is a spec), and any skipped review notes, then end with `Next: /saw-sync` (re-checks profile and listed docs against the new code). If this work created, moved, or deleted a doc file, append those paths (old and new for moves): `Next: /saw-sync <doc paths>`.

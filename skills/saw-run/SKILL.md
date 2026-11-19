@@ -31,20 +31,20 @@ Implement `spec.md` following **Human-Reviewable Minimal Diff**:
 - Strictly scoped edits; no drive-by refactoring or cryptic one-line golfing.
 - If hitting an unclear bug or stuck test, run `diagnostician` (blind `SYMPTOM` + `REPRO` only).
 - Write/update tests per Verification Criteria.
-- Run `.saw/profile.md` verification commands; fix failures up to `rounds.work_fix` (default `3`).
-  *(Only halt early if verification commands still fail after `work_fix` retries and cannot proceed safely.)*
+- Run `.saw/profile.md` verification commands and check each Verification Criteria item; fix failures up to `rounds.work_fix` (default `3`).
+  *(Only halt early if verification commands or Verification Criteria items still fail after `work_fix` retries and cannot proceed safely.)*
 
 ## 4. Phase: Post-Work Diff Review (Non-Stop)
 Build `<work>/review-round<N>.diff` (P4) and run active `review` lenses (default: `critic` + `simplifier`; `TARGET_TYPE = post-work`; add `SPEC: <spec.md path> (reference only; review DIFF_PATH)`) up to `rounds.review_post` (default `2`):
 - Fix concrete defects or diff-hygiene issues; record 1-line reasons for skipped items.
-- Re-run verification commands after the final code edit.
+- Re-run verification commands and re-check Verification Criteria items after the final edit.
 
 ## 5. Phase: Sync & Final Report
 1. Patch `.saw/profile.md` and docs listed under `## Project docs` (and READMEs if touched/outdated) via minimal pinpoint diffs where this run made them inaccurate; never add, remove, or repoint `## Project docs` entries here.
 2. Delete throwaway `.diff` / `baseline/` snapshots (keep `spec.md`).
 3. Present one concise final summary:
    - What changed (files + brief summary)
-   - Verification commands run & exact observed results
+   - Verification commands run & exact observed results; each Verification Criteria item marked pass / fail / manual
    - Key Goldfish suggestions applied vs skipped (1 line each)
    - Docs/profile synced (list each doc file edited)
 4. If this run created, moved, or deleted a doc file, end with `Next: /saw-sync <those doc paths>` (old and new for moves; sync proposes the pointer changes).
