@@ -26,13 +26,13 @@ When the runner prints "Open the sandbox" (it rebuilds `/tmp/saw-canary` first, 
 - **Antigravity**: Open `/tmp/saw-canary` and run `/skills reload` — on every run, since the sandbox is rebuilt.
 - **Claude Code**: CLI `cd /tmp/saw-canary && claude`, or VS Code `code /tmp/saw-canary` and use the Claude Code panel.
 - If the sandbox window is still open from an earlier run, run **Developer: Reload Window** first. Probe-to-probe resets use git only, so no reload is needed between probes.
-- **Web tools**: `general` runs some lenses with `web: yes`, so pre-allow web tools in the freshly built sandbox before running any probe, or each approval prompt counts as a pause. Claude Code: add `WebFetch` and `WebSearch` to `permissions.allow` in `/tmp/saw-canary/.claude/settings.local.json` (or approve them via `/permissions`).
+- **Web tools**: `general` runs `reality`, `clarity`, `critic`, and `diagnostician` with `web: yes`, so pre-allow web tools in the freshly built sandbox before running any probe. Harness tool-permission prompts are not SAW pauses; note them in the scorecard Notes. Claude Code: add `WebFetch` and `WebSearch` to `permissions.allow` in `/tmp/saw-canary/.claude/settings.local.json` (or approve them via `/permissions`).
 
 > **Limitation:** P2/P3/P5 grade the Goldfish output that Elephant copies into the result file, so they also depend on Elephant copying it faithfully. A harness that never writes the result file fails with `no result` — record that in the scorecard Notes.
 
 ---
 
-## Canary Probes (P1–P4 + Optional P5–P6)
+## Canary Probes (P1–P5 + Optional P6)
 
 Prompts live only in `probes/canary.sh`; the criteria below mirror its checks.
 
@@ -53,6 +53,7 @@ The prompt plants a private hypothesis (`CANARY_SECRET: ZEBRA-947`) and asks for
 - Goldfish blames the formula in `pricing.py` (`price * pct / 100` instead of `price * (1 - pct / 100)`), not `TAX_RATE`. *(y/n — runner shows the output)*
 - Every Goldfish output ends with `SAW-DONE`.
 - `pricing.py` and `test_pricing.py` are unchanged (Goldfish stayed read-only).
+- If a block reports `WEB-BLOCKED:`, the session continued and noted `web blocked` once. *(y/n)*
 
 ---
 
@@ -62,21 +63,23 @@ The prompt plants a private hypothesis (`CANARY_SECRET: ZEBRA-947`) and asks for
 **PASS criteria:**
 - Header shows `pack=canary` with `canary-tag` active and `simplifier` omitted.
 - A Goldfish output contains **`[CANARY-OK]`** (the `canary-tag` lens ran).
-- That output flags missing negative-price / invalid-percentage validation. *(y/n — runner shows the output)*
+- That output flags the discount formula bug and/or missing validation (negative price, `pct` outside 0..100). *(y/n — runner shows the output)*
+- If a block reports `WEB-BLOCKED:`, the session continued and noted `web blocked` once. *(y/n)*
 
 ---
 
 ### P4. Full-Auto (`/saw-run`), Single Checkpoint & Minimal Diff
 **PASS criteria:**
-1. **Single checkpoint**: Pauses **exactly once** right after drafting `spec.md`; after `proceed`, runs to completion without pausing again. *(y/n)*
+1. **Single checkpoint**: Pauses **exactly once** right after drafting `spec.md` (harness tool-permission prompts don't count); after `proceed`, runs to completion without pausing again. *(y/n)*
 2. **Real test verification**: `python3 -m unittest` passes, and an independent check confirms `apply_discount(100, 20) == 80` and `ValueError` for invalid price/percentage.
-3. **Human-Reviewable Minimal Diff**: the intentionally quirky `format_currency()` spacing is untouched.
+3. **Human-Reviewable Minimal Diff**: the quirky `format_currency()` spacing is untouched, and only `pricing.py`, `README.md`, and `test_*.py` changed (dot-paths like `.saw/` ignored).
 4. **Cleanup**: Throwaway `.saw/work/*/*.diff` files are removed while `spec.md` remains.
+5. **README as instructed**: `README.md` states the validation rule, and `spec.md` lists it as a Verification Criteria item so post-work spec conformance can check it. *(spec item: y/n)*
 
 ---
 
-### P5 (Optional). Subagent Web Lookup Check
-Tests whether the harness supports `web: yes` lenses via `saw-goldfish-web` (or, when network access in read-only subagents is blocked, Goldfish reports `WEB-BLOCKED` and continues). `sandbox-app` includes `.saw/packs/canary-web.md`, which turns off default `brainstorm` lenses and enables a single `web-check` lens (`web: yes`).
+### P5. Subagent Web Lookup Check
+Tests whether the harness supports `web: yes` lenses via `saw-goldfish-web` (or, when network access in read-only subagents is blocked, Goldfish reports `WEB-BLOCKED` and continues). `sandbox-app` includes `.saw/packs/canary-web.md`, which turns off default `brainstorm` lenses and enables a single `canary-web-check` lens (`web: yes`).
 
 **Outcomes (git status must stay clean in all cases):**
 - **PASS**: Goldfish cites `docs.python.org`, ends with `SAW-DONE`, and you confirm a web tool actually ran. *(y/n)*
@@ -97,8 +100,10 @@ Tests whether the harness supports `web: yes` lenses via `saw-goldfish-web` (or,
 
 ## Harness Scorecard
 
-| Harness | Version / Surface | Date | P1 Setup | P2 Isolation | P3 Pack Extends | P4 `/saw-run` | P5 Web (Opt) | P6 Diff (Opt) | Notes |
+| Harness | Version / Surface | Date | P1 Setup | P2 Isolation | P3 Pack Extends | P4 `/saw-run` | P5 Web | P6 Diff (Opt) | Notes |
 |---|---|---|---|---|---|---|---|---|---|
 | Antigravity | VS Code Extension 1.12.0 | 2026-11-15 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Run `/skills reload` once after install |
 | GitHub Copilot | Copilot Chat v0.74.0 | 2026-11-15 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Claude Code | VS Code Extension 2.1.325 | 2026-11-16 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | |
+
+> Rows dated before 2026-11-18 predate web-on-by-default and the lens/spec-conformance changes; re-run P2–P6 before relying on them.

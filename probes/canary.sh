@@ -153,6 +153,28 @@ git_clean() {
   fi
 }
 
+# Paths on stdin that P4 may not touch (dot-paths like .saw/ and harness config are ignored).
+extra_paths() {
+  grep -v '^\.' | grep -vxE 'pricing\.py|README\.md|test_[A-Za-z0-9_]*\.py' || true
+}
+
+# P4: paths changed since canary-configured (committed, uncommitted, or untracked) must all be allowed.
+only_allowed_paths_changed() {
+  local extra
+  extra=$( { git -C "$DEST" diff --name-only canary-configured; git -C "$DEST" ls-files --others --exclude-standard; } | extra_paths)
+  [ -z "$extra" ] && return 0
+  printf 'unexpected P4 paths:\n%s\n' "$extra" >>"$LOG"
+  return 1
+}
+
+readme_states_rule() {
+  grep -qiE 'ValueError|negative|raise|invalid|(^|[^0-9.])0 *(\.\.|to|-|–|and|,) *100|\[0, *100\]' "$1"
+}
+
+web_blocked() {
+  blocks_match "$1" -E '^[^[:alnum:]]*WEB-BLOCKED:'
+}
+
 # ---------- probe plumbing ----------
 
 reset_to() {
@@ -233,6 +255,9 @@ Using /saw-work's diagnostician step only (do NOT edit code), diagnose why apply
   expect "pricing.py / test_pricing.py unchanged" git -C "$DEST" diff --quiet canary-configured -- pricing.py test_pricing.py
   show "Goldfish output (P2.md)" "$(block_text "$f")"
   ask "Does Goldfish blame the formula in pricing.py (price * pct / 100 instead of price * (1 - pct / 100)), not TAX_RATE?"
+  if web_blocked "$f"; then
+    ask "Web was blocked: did the session continue and note 'web blocked' once (no re-spawn)?"
+  fi
 }
 
 run_P3() {
@@ -245,11 +270,14 @@ Stop after one review round and do not apply fixes.$(result_rules P3)"
     awk '/pack=canary/ && /canary-tag/ && !/simplifier/ { f = 1 } END { exit !f }' "$f"
   local tag_block
   if tag_block=$(block_containing '[CANARY-OK]' "$f"); then
-    ok "a Goldfish block starts with [CANARY-OK]"
+    ok "a Goldfish block contains [CANARY-OK]"
     show "canary-tag output (P3.md)" "$tag_block"
-    ask "Does it flag missing negative-price / invalid-percentage validation?"
+    ask "Does it flag the discount formula bug and/or missing validation (negative price, pct outside 0..100)?"
   else
-    bad "a Goldfish block starts with [CANARY-OK]"
+    bad "a Goldfish block contains [CANARY-OK]"
+  fi
+  if web_blocked "$f"; then
+    ask "Web was blocked: did the session continue and note 'web blocked' once (no re-spawn)?"
   fi
 }
 
@@ -274,9 +302,22 @@ for args in [(-1, 10), (100, -1), (100, 101)]:
   fi
   expect "format_currency signature spacing untouched" grep -qF 'def format_currency(  amount: float ) -> str:' "$DEST/pricing.py"
   expect "format_currency symbol spacing untouched" grep -qF 'symbol   =   "$"' "$DEST/pricing.py"
+  expect "README.md states the validation rule (as instructed)" readme_states_rule "$DEST/README.md"
+  if only_allowed_paths_changed; then
+    ok "only pricing.py, README.md, test_*.py changed"
+  else
+    bad "only pricing.py, README.md, test_*.py changed" "see log"
+  fi
   refute "no leftover .saw/work/*/*.diff" compgen -G "$DEST/.saw/work/*/*.diff"
   expect "spec.md kept under .saw/work/" compgen -G "$DEST/.saw/work/*/spec.md"
-  ask "Did it pause exactly once (spec checkpoint) and then finish without pausing again?"
+  local spec vc
+  spec=$(compgen -G "$DEST/.saw/work/*/spec.md" | head -n 1 || true)
+  if [ -n "$spec" ]; then
+    vc=$(awk '/Verification Criteria/ { f = 1 } f' "$spec")
+    show "spec.md Verification Criteria" "${vc:-$(cat "$spec")}"
+    ask "Does it list the README rule as a Verification Criteria item (so post-work spec conformance can check it)?"
+  fi
+  ask "Did it pause exactly once (spec checkpoint), not counting harness tool-permission prompts, and then finish?"
 }
 
 run_P5() {
@@ -287,7 +328,7 @@ run_P5() {
   require_blocks P5 || return 0
   [ "$PROBE_OK" -eq 1 ] || return 0
   local f="$RESULTS/P5.md"
-  if blocks_match "$f" -E '^[^[:alnum:]]*WEB-BLOCKED:'; then
+  if web_blocked "$f"; then
     say "  [auto] WEB-BLOCKED reported honestly ... BLOCKED"
     return 3
   fi
@@ -369,6 +410,40 @@ self_test() {
   check_rejects "P1 checks fail on a .saw/ doc pointer" p1_passes "$tmp/saw-pointer"
   sed 's/^- none found$/- Purpose: <1-2 lines>/' "$tmp/good-profile" >"$tmp/placeholder"
   check_rejects "P1 checks fail on a placeholder line" p1_passes "$tmp/placeholder"
+
+  local allowed rejected
+  allowed=$(printf '%s\n' .saw/work/x/spec.md .claude/settings.json test_pricing.py README.md pricing.py | extra_paths)
+  check_case "P4 allows pricing/README/test_*/dot-paths" test -z "$allowed"
+  rejected=$(printf '%s\n' tests/test_x.py CLAUDE.md pricing_utils.py | extra_paths | wc -l | tr -d ' ')
+  check_case "P4 rejects other paths" test "$rejected" -eq 3
+  printf '%s\n' 'Raises ValueError if price < 0.' >"$tmp/r1"
+  printf '%s\n' '`pct` must be between 0 and 100.' >"$tmp/r2"
+  printf '%s\n' 'pct must be in [0, 100]' >"$tmp/r3"
+  printf '%s\n' '- `apply_discount(price, pct)`: Calculates discounted price.' >"$tmp/r4"
+  check_case "README rule: ValueError" readme_states_rule "$tmp/r1"
+  check_case "README rule: between 0 and 100" readme_states_rule "$tmp/r2"
+  check_case "README rule: [0, 100]" readme_states_rule "$tmp/r3"
+  check_rejects "README rule: unrelated text" readme_states_rule "$tmp/r4"
+  check_rejects "README rule: unchanged sandbox README" readme_states_rule "$PROBES_DIR/sandbox-app/README.md"
+  printf '%s\n' '`apply_discount(100, 100)` returns 0.0; `10-100` items' >"$tmp/r5"
+  check_rejects "README rule: numbers inside examples" readme_states_rule "$tmp/r5"
+  printf '%s\n' '=== GOLDFISH BEGIN ===' '**WEB-BLOCKED:** no tools' 'SAW-DONE' '=== GOLDFISH END ===' >"$tmp/blocked"
+  check_case "bold WEB-BLOCKED: line matches" web_blocked "$tmp/blocked"
+
+  # P4 path check against a real repo: committed, modified, and untracked extras are all caught.
+  local repo="$tmp/repo" saved_dest=$DEST saved_log=$LOG
+  mkdir -p "$repo" && git -C "$repo" init -q
+  printf 'x\n' >"$repo/pricing.py" && printf 'x\n' >"$repo/notes.txt"
+  git -C "$repo" add . && git -C "$repo" -c user.name=t -c user.email=t@t commit -qm base && git -C "$repo" tag canary-configured
+  DEST=$repo LOG="$tmp/paths.log"
+  check_case "P4 path check passes with only allowed edits" only_allowed_paths_changed
+  printf 'y\n' >"$repo/pricing.py" && printf 'y\n' >"$repo/README.md" && mkdir -p "$repo/.claude" && printf 'y\n' >"$repo/.claude/x"
+  check_case "P4 path check ignores dot-paths and allowed files" only_allowed_paths_changed
+  printf 'c\n' >"$repo/committed.py" && git -C "$repo" add committed.py && git -C "$repo" -c user.name=t -c user.email=t@t commit -qm extra
+  printf 'y\n' >"$repo/notes.txt" && printf 'u\n' >"$repo/untracked.py"
+  check_rejects "P4 path check rejects committed/modified/untracked extras" only_allowed_paths_changed
+  check_case "P4 path check logs all three extras" sh -c 'grep -qx committed.py "$1" && grep -qx notes.txt "$1" && grep -qx untracked.py "$1"' _ "$LOG"
+  DEST=$saved_dest LOG=$saved_log
 
   rm -rf "$tmp"
   [ "$SELF_FAILS" -eq 0 ] || { echo "self-test: $SELF_FAILS failure(s)" >&2; return 1; }

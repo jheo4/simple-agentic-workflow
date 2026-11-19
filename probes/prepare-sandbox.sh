@@ -99,7 +99,6 @@ def apply_discount(price: float, pct: float) -> float:
 
 
 def format_currency(  amount: float ) -> str:
-    # Intentionally quirky spacing untouched by discount tasks (Minimal Diff trap).
     symbol   =   "$"
     formatted = f"{symbol}{amount:.2f}"
     return formatted
@@ -193,11 +192,32 @@ EOF
 
   # Configured-profile baseline for P2-P6 so /saw-* skills don't stop for setup questions.
   git checkout -q --detach canary-baseline
-  sed -i.bak -e 's/^status: not configured$/status: configured/' \
-    -e 's/^test: not configured$/test: python3 -m unittest/' .saw/profile.md
-  rm .saw/profile.md.bak
-  grep -qx 'status: configured' .saw/profile.md && grep -qx 'test: python3 -m unittest' .saw/profile.md \
-    || { echo "error: could not configure sandbox profile" >&2; exit 1; }
+  cat > .saw/profile.md <<'EOF'
+# SAW Project Profile
+status: configured
+
+## Settings
+default-pack: general
+base-branch: main
+doc-path: docs/
+
+## Project summary
+- Purpose: Minimal Python pricing module (sample app).
+- Stack: Python 3 standard library, unittest.
+
+## Project docs
+- README.md: functions and how to run tests — read when: changing pricing.py behavior or tests
+
+## Verification commands
+lint: not configured
+typecheck: not configured
+test: python3 -m unittest
+build: not configured
+runtime: not configured
+
+## Notes & Constraints
+- none found
+EOF
   git commit -q -am "chore: configure canary profile"
   git tag canary-configured
 

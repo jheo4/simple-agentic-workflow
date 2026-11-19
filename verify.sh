@@ -179,6 +179,12 @@ done
 configured=$(git -C "$sandbox" show canary-configured:.saw/profile.md)
 grep -qx 'status: configured' <<<"$configured" || fail "canary-configured profile is not configured"
 grep -qx 'test: python3 -m unittest' <<<"$configured" || fail "canary-configured profile lacks test command"
+! grep -v '^#' <<<"$configured" | grep -qE '<[^>]+>' || fail "canary-configured profile has template placeholders"
+grep -qF -- '- README.md:' <<<"$configured" || fail "canary-configured profile lacks a README.md doc pointer"
+[ "$(grep -oE '^[a-z-]+:' <<<"$configured" | sort)" = "$(grep -oE '^[a-z-]+:' "$ROOT/templates/profile.md" | sort)" ] \
+  || fail "canary-configured profile keys differ from templates/profile.md"
+[ "$(git -C "$sandbox" diff --numstat main canary/clean-fix -- pricing.py)" = "$(printf '1\t1\tpricing.py')" ] \
+  || fail "canary/clean-fix should change exactly one line of pricing.py"
 "$prep" "$sandbox" --check-dest || fail "prepare-sandbox.sh should accept an existing canary sandbox"
 
 echo "PASS: All Layer 1 SAW checks passed."

@@ -8,4 +8,4 @@ extends: general
 | brainstorm | reframe | off | no | - |
 | brainstorm | zoom | off | no | - |
 | brainstorm | reality | off | no | - |
-| brainstorm | web-check | active | yes | Use live web lookup (do NOT answer from memory) to retrieve the exact current stable Python release version and documentation URL from docs.python.org. If web access is unavailable or blocked, explicitly report "WEB-BLOCKED: <reason>". End with SAW-DONE |
+| brainstorm | canary-web-check | active | yes | Use live web lookup (do NOT answer from memory) to retrieve the exact current stable Python release version and documentation URL from docs.python.org. End with SAW-DONE |
