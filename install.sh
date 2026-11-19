@@ -95,7 +95,7 @@ copy_owned() {
     mkdir -p "$(dirname "$dst")"
     cp "$src" "$dst"
     installed+=("$dst_rel")
-  elif cmp -s "$src" "$dst"; then
+  elif cmp -s <(tr -d '\r' <"$src") <(tr -d '\r' <"$dst"); then
     unchanged+=("$dst_rel")
   elif [ "$UPDATE" -eq 1 ]; then
     mkdir -p "$(dirname "$dst")"
@@ -118,25 +118,34 @@ install_block() {
     return
   fi
 
-  if grep -qxF "$BEGIN_MARK" "$dst"; then
+  # Match markers ignoring CRs so CRLF files (e.g. saved on Windows) are not re-appended.
+  local nocr
+  nocr=$(tr -d '\r' <"$dst")
+  if grep -qxF "$BEGIN_MARK" <<<"$nocr"; then
     local begin_count end_count begin_line end_line
-    begin_count=$(grep -cxF "$BEGIN_MARK" "$dst")
-    end_count=$(grep -cxF "$END_MARK" "$dst" || true)
+    begin_count=$(grep -cxF "$BEGIN_MARK" <<<"$nocr")
+    end_count=$(grep -cxF "$END_MARK" <<<"$nocr" || true)
     [ "$begin_count" -eq 1 ] && [ "$end_count" -eq 1 ] || {
       echo "error: $dst_rel must contain exactly one $BEGIN_MARK and one $END_MARK; fix it manually" >&2
       exit 1
     }
-    begin_line=$(grep -nxF "$BEGIN_MARK" "$dst" | cut -d: -f1)
-    end_line=$(grep -nxF "$END_MARK" "$dst" | cut -d: -f1)
+    begin_line=$(grep -nxF "$BEGIN_MARK" <<<"$nocr" | cut -d: -f1)
+    end_line=$(grep -nxF "$END_MARK" <<<"$nocr" | cut -d: -f1)
     [ "$begin_line" -lt "$end_line" ] || {
       echo "error: $dst_rel has $END_MARK before $BEGIN_MARK; fix it manually" >&2
       exit 1
     }
     local tmp
     tmp=$(mktemp)
+    # A CRLF block is rewritten with CRLF so the file keeps one line ending.
     awk -v b="$BEGIN_MARK" -v e="$END_MARK" -v f="$src" '
-      $0==b { while ((getline line < f) > 0) print line; close(f); skip=1; next }
-      $0==e { skip=0; next }
+      { l = $0; sub(/\r+$/, "", l) }
+      l==b {
+        cr = ($0 ~ /\r$/) ? "\r" : ""
+        while ((getline line < f) > 0) { sub(/\r+$/, "", line); print line cr }
+        close(f); skip=1; next
+      }
+      l==e { skip=0; next }
       !skip { print }
     ' "$dst" > "$tmp"
     if cmp -s "$tmp" "$dst"; then
@@ -252,7 +261,7 @@ fi
 
 # 3. Ignore ephemeral work directories
 GI="$TARGET/.gitignore"
-if [ -e "$GI" ] && grep -qxE '/?\.saw/work/?' "$GI"; then
+if [ -e "$GI" ] && grep -qxE '/?\.saw/work/?' <(tr -d '\r' <"$GI"); then
   unchanged+=(".gitignore (.saw/work/)")
 else
   {

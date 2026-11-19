@@ -83,6 +83,7 @@ Required final line:
 
 - **Without `--update` (`UPDATE=0`)**: Existing modified SAW-owned files are skipped as conflicts (`conflicts`) and retired SAW skills are left untouched.
 - **Web in `general` (both modes)**: Refreshing `general.md` enables web for the lenses listed under the §1 table, including in packs that `extends: general`; override those rows with `web` = `no` if queries must not leave the machine.
+- **Line endings (both modes)**: Files that differ from SAW's copy only in CR/LF line endings count as unchanged (not conflicts, not rewritten), provided each SAW block uses one line ending throughout. An existing SAW block keeps its BEGIN line's ending; newly appended blocks and owned files refreshed by `--update` are copied as checked out in SAW (LF; re-clone Windows checkouts made before SAW added `.gitattributes`).
 - **Custom lens vs. new built-in (both modes)**: If SAW starts shipping a lens whose name matches your marker-less `.saw/lenses/<lens>.md`, your file is never copied over; it is reported under `kept` so you can rename it.
 - **With `--update` (`UPDATE=1`)**:
   - **Preserved (Project-Owned)**: `.saw/profile.md`, custom `.saw/packs/*.md` (other than `general.md`), custom `.saw/lenses/*.md`, custom user skills (including custom `saw-*`), and instructions outside `<!-- SAW:BEGIN -->...<!-- SAW:END -->`.

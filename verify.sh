@@ -11,6 +11,10 @@ fail() {
   exit 1
 }
 
+to_crlf() {
+  awk '{printf "%s\r\n", $0}' "$1" >"$1.crlf" && mv "$1.crlf" "$1"
+}
+
 echo "[1/6] Checking install.sh syntax..."
 bash -n "$ROOT/install.sh" || fail "install.sh has syntax errors"
 [ -x "$ROOT/install.sh" ] || fail "install.sh is not executable"
@@ -104,12 +108,48 @@ for marker_file in "$upd/.github/copilot-instructions.md" "$upd/CLAUDE.md" "$upd
   [ "$count" -eq 1 ] || fail "$marker_file: expected 1 SAW:BEGIN marker, found $count"
 done
 
+# Verify CRLF target files (e.g. saved on Windows) are not re-appended, rewritten, or flagged as conflicts
+crlf="$TMP_BASE/crlf"
+mkdir -p "$crlf"
+"$ROOT/install.sh" "$crlf" >/dev/null
+crlf_files=(CLAUDE.md AGENTS.md .github/copilot-instructions.md .gitignore .saw/protocol.md)
+for f in "${crlf_files[@]}"; do
+  to_crlf "$crlf/$f"
+  cp "$crlf/$f" "$crlf/$f.saved"
+done
+out_crlf=$("$ROOT/install.sh" "$crlf")
+! echo "$out_crlf" | grep -q '^skipped ' || fail "crlf (plain): CRLF-only differences reported as conflicts"
+for f in "${crlf_files[@]}"; do
+  cmp -s "$crlf/$f" "$crlf/$f.saved" || fail "crlf (plain): $f changed"
+done
+"$ROOT/install.sh" "$crlf" --update >/dev/null
+for f in "${crlf_files[@]}"; do
+  cmp -s "$crlf/$f" "$crlf/$f.saved" || fail "crlf (update): $f changed"
+done
+
+# Verify --update replaces a stale CRLF SAW block with CRLF lines and keeps user content
+stale="$TMP_BASE/crlf-stale"
+mkdir -p "$stale"
+"$ROOT/install.sh" "$stale" --targets antigravity >/dev/null
+echo "user-keep" >> "$stale/AGENTS.md"
+cp "$stale/AGENTS.md" "$stale/AGENTS.md.expected"
+to_crlf "$stale/AGENTS.md.expected"
+awk '{print} /^<!-- SAW:BEGIN -->$/{print "stale-saw-line"}' "$stale/AGENTS.md" > "$stale/AGENTS.md.tmp"
+mv "$stale/AGENTS.md.tmp" "$stale/AGENTS.md"
+to_crlf "$stale/AGENTS.md"
+"$ROOT/install.sh" "$stale" --targets antigravity --update >/dev/null
+cmp -s "$stale/AGENTS.md" "$stale/AGENTS.md.expected" || fail "crlf-stale: --update did not yield the expected CRLF AGENTS.md"
+
 # Verify reversed SAW markers fail fast without mutating user content
 bad_proj="$TMP_BASE/bad-markers"
 mkdir -p "$bad_proj"
 printf '%s\n' '<!-- SAW:END -->' '<!-- SAW:BEGIN -->' 'user-keep' > "$bad_proj/AGENTS.md"
 ! "$ROOT/install.sh" "$bad_proj" --targets antigravity --update 2>/dev/null || fail "reversed SAW markers should fail"
 grep -qxF "user-keep" "$bad_proj/AGENTS.md" || fail "reversed marker failure mutated AGENTS.md"
+to_crlf "$bad_proj/AGENTS.md"
+cp "$bad_proj/AGENTS.md" "$bad_proj/AGENTS.md.saved"
+! "$ROOT/install.sh" "$bad_proj" --targets antigravity --update 2>/dev/null || fail "reversed SAW markers in a CRLF file should fail"
+cmp -s "$bad_proj/AGENTS.md" "$bad_proj/AGENTS.md.saved" || fail "reversed marker failure mutated CRLF AGENTS.md"
 
 echo "[5/6] Testing self-install (dogfooding) into a copied SAW root..."
 self_saw="$TMP_BASE/self-saw"

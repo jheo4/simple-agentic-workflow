@@ -40,7 +40,7 @@ flowchart LR
 
 ## Quick Start (60 Seconds)
 
-**Prerequisites**: `bash`, `git` (plus authenticated `gh` CLI for GitHub PR triage in `/saw-diff-commit`).
+**Prerequisites**: `bash`, `git` (plus authenticated `gh` CLI for GitHub PR triage in `/saw-diff-commit`). On Windows, run `install.sh` from Git Bash (bundled with Git for Windows) or WSL; teammates who pull an already-installed project don't need to run it.
 
 ```sh
 git clone https://github.com/jheo4/simple-agentic-workflow.git
