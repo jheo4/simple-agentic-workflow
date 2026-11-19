@@ -19,13 +19,13 @@ When resolving a pack from `.saw/packs/<pack>.md`, read `.saw/protocol.md` (P0) 
 | Phase | Skill | Default Goldfish Lenses | Purpose |
 |---|---|---|---|
 | Setup | `/saw-setup` | none | Initialize/refresh `.saw/profile.md` |
-| `brainstorm` | `/saw-brainstorm` | `incremental`, `reframe`, `zoom`, `reality` (4 parallel) | Diverge + reality-check task selection |
-| `spec` | `/saw-spec` | `clarity` (1) | Tighten scope, edge cases, verification |
-| `review` | `/saw-review` | `critic`, `simplifier` (2 parallel; `pre-work` / `post-work`) | Catch defects & enforce Minimal Diff |
-| `work` | `/saw-work` | `diagnostician` (`on_demand`) + `review` (`critic`, `simplifier` post-work) | Implement, verify, blind-debug if stuck |
+| `brainstorm` | `/saw-brainstorm` | `incremental`, `reframe`, `zoom`, `reality` (web) (4 parallel) | Diverge + reality-check task selection |
+| `spec` | `/saw-spec` | `clarity` (web) (1) | Tighten scope, edge cases, verification |
+| `review` | `/saw-review` | `critic` (web), `simplifier` (2 parallel; `pre-work` / `post-work`) | Catch defects & enforce Minimal Diff |
+| `work` | `/saw-work` | `diagnostician` (web) (`on_demand`) + `review` (`critic` (web), `simplifier` post-work) | Implement, verify, blind-debug if stuck |
 | `sync` | `/saw-sync` | none | Sync `.saw/profile.md` & docs to disk |
-| Full Auto | `/saw-run` | `spec` (`clarity`) → 1 checkpoint → `review` + `work` + `sync` | End-to-end automation |
-| `review` (PR/Git) | `/saw-diff-commit` | `critic`, `simplifier` (read-only) | Read-only commit/branch/PR triage |
+| Full Auto | `/saw-run` | `spec` (`clarity` (web)) → 1 checkpoint → `review` + `work` + `sync` | End-to-end automation |
+| `review` (PR/Git) | `/saw-diff-commit` | `critic` (web), `simplifier` (read-only) | Read-only commit/branch/PR triage |
 | `diff` (Files/Dirs) | `/saw-diff-files` | `concept`, `direction`, `detail` (3 parallel) | Macro, mid, detail file/dir comparison |
 
 ## 2. Print Workflow & Lens Guide

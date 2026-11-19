@@ -49,6 +49,17 @@ done < <(grep '^|' "$ROOT/templates/packs/general.md")
 markers=$(for lens in "$ROOT"/templates/lenses/*.md; do head -n 1 "$lens"; done | sort -u)
 [ "$(wc -l <<<"$markers" | tr -d ' ')" -eq 1 ] || fail "templates/lenses/*.md must share one saw-owned first line"
 [[ "$markers" == "<!-- saw-owned"* ]] || fail "templates/lenses/*.md first line must start with <!-- saw-owned"
+web_lenses=$(awk -F'|' '$5 ~ /^ *yes *$/ { gsub(/ /, "", $3); print $3 }' "$ROOT/templates/packs/general.md" | sort | xargs)
+[ "$web_lenses" = "clarity critic diagnostician reality" ] || fail "general.md web: yes rows must be exactly reality, clarity, critic, diagnostician (got: $web_lenses)"
+for agent in "$ROOT"/adapters/claude/agents/saw-goldfish*.md "$ROOT"/adapters/copilot/agents/saw-goldfish*.agent.md "$ROOT"/adapters/antigravity/plugin/agents/saw-goldfish*.md; do
+  grep -qF '(unverified: external)' "$agent" || fail "$agent: missing (unverified: external) marker rule"
+  case "$agent" in
+    *-web*)
+      grep -qF '`WEB-BLOCKED: <reason>` on its own line' "$agent" || fail "$agent: missing WEB-BLOCKED own-line rule"
+      grep -qF 'never paste repo code' "$agent" || fail "$agent: missing web query scrubbing rule"
+      ;;
+  esac
+done
 
 echo "[4/6] Testing install.sh across targets & --update preservation..."
 for target in all copilot claude antigravity; do

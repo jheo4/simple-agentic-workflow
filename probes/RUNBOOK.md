@@ -26,6 +26,7 @@ When the runner prints "Open the sandbox" (it rebuilds `/tmp/saw-canary` first, 
 - **Antigravity**: Open `/tmp/saw-canary` and run `/skills reload` — on every run, since the sandbox is rebuilt.
 - **Claude Code**: CLI `cd /tmp/saw-canary && claude`, or VS Code `code /tmp/saw-canary` and use the Claude Code panel.
 - If the sandbox window is still open from an earlier run, run **Developer: Reload Window** first. Probe-to-probe resets use git only, so no reload is needed between probes.
+- **Web tools**: `general` runs some lenses with `web: yes`, so pre-allow web tools in the freshly built sandbox before running any probe, or each approval prompt counts as a pause. Claude Code: add `WebFetch` and `WebSearch` to `permissions.allow` in `/tmp/saw-canary/.claude/settings.local.json` (or approve them via `/permissions`).
 
 > **Limitation:** P2/P3/P5 grade the Goldfish output that Elephant copies into the result file, so they also depend on Elephant copying it faithfully. A harness that never writes the result file fails with `no result` — record that in the scorecard Notes.
 
@@ -75,7 +76,7 @@ The prompt plants a private hypothesis (`CANARY_SECRET: ZEBRA-947`) and asks for
 ---
 
 ### P5 (Optional). Subagent Web Lookup Check
-Tests whether the harness supports `web: yes` lenses via `saw-goldfish-web` (or triggers a clean fallback when network access in read-only subagents is blocked). `sandbox-app` includes `.saw/packs/canary-web.md`, which turns off default `brainstorm` lenses and enables a single `web-check` lens (`web: yes`).
+Tests whether the harness supports `web: yes` lenses via `saw-goldfish-web` (or, when network access in read-only subagents is blocked, Goldfish reports `WEB-BLOCKED` and continues). `sandbox-app` includes `.saw/packs/canary-web.md`, which turns off default `brainstorm` lenses and enables a single `web-check` lens (`web: yes`).
 
 **Outcomes (git status must stay clean in all cases):**
 - **PASS**: Goldfish cites `docs.python.org`, ends with `SAW-DONE`, and you confirm a web tool actually ran. *(y/n)*

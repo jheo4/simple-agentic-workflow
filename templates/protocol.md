@@ -44,8 +44,9 @@ Every lens runs through a fresh read-only Goldfish subagent.
 - **How to spawn by harness**:
   - **GitHub Copilot**: Run `saw-goldfish` (or `saw-goldfish-web` if `web: yes`).
   - **Claude Code**: Spawn `.claude/agents/saw-goldfish.md` (or `saw-goldfish-web` if `web: yes`).
-  - **Antigravity**: Spawn `saw-goldfish` (or `saw-goldfish-web` when `web: yes`) via `invoke_subagent` (if unavailable in the active surface, spawn a fresh read-only subagent explicitly instructed not to edit files or run mutations; note that the built-in `research` subagent has no network access).
-  - **Web fallback**: If `web: yes` and the subagent reports web access is unavailable or blocked, Elephant looks up the reference once in the main session and passes the fetched excerpt or temp file path to Goldfish.
+  - **Antigravity**: Spawn `saw-goldfish` (or `saw-goldfish-web` when `web: yes`) via `invoke_subagent` (if unavailable in the active surface, spawn a fresh read-only subagent explicitly instructed not to edit files or run mutations, and to read and follow `.agents/plugins/saw/agents/saw-goldfish(-web).md`; note that the built-in `research` subagent has no network access).
+  - **Web fallback**: If a `web: yes` Goldfish reports `WEB-BLOCKED` (including a denied web permission), keep its output (no re-spawn), continue, and note `web blocked` once per skill run.
+- **Unverified findings**: Before acting on an `(unverified: external)` finding, verify it in the main session (web, official docs, or `--help`/`--version` of an installed third-party binary on PATH; never repo scripts, wrappers, or make/npm targets, and never by running the unfamiliar command). Otherwise report it with the marker; it does not count toward verdicts or the "one more round?" prompt. In `/saw-run`, skip a check that would need a new permission and record a 1-line reason (P3).
 - **Strict input isolation**:
   Pass ONLY:
   1. `LENS`: `.saw/lenses/<lens>.md` (if present) and/or inline `FOCUS: <pack row focus>`

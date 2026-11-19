@@ -26,6 +26,8 @@ Defined in [`templates/packs/general.md`](../templates/packs/general.md) (instal
 | `work` | `/saw-work`, `/saw-run` | `diagnostician` | `on_demand` (only when stuck/unclear bug) | Blind root-cause diagnosis (`SYMPTOM` + `REPRO`) |
 | `diff` | `/saw-diff-files` | `concept`, `direction`, `detail` | `active` (3 parallel) | Macro concept, mid direction, detail drift |
 
+`web: yes` in `general`: `reality`, `clarity`, `critic`, `diagnostician` (the lenses that judge external facts).
+
 ---
 
 ## 2. Creating a Custom Pack (`extends: general`)
@@ -47,7 +49,7 @@ rounds: review_post=3
 ### Resolution Rules (Protocol P0 & P2)
 - **Inheritance (`extends:`)**: Resolves root ancestor → child up to depth 3 (with cycle detection); child rows replace matching `(phase, lens)` rows, new rows are added, and `use: off` removes a lens.
 - **`rounds:`**: Overrides only the specified loop keys (`spec`, `review_pre`, `work_fix`, `review_post`, `review_manual`), leaving other parent keys intact.
-- **`web: yes` (Rule P2 in [`templates/protocol.md`](../templates/protocol.md))**: Defaults to `no`; when `yes`, spawns `saw-goldfish-web` so Goldfish can look up live docs (if network access is blocked in a sandboxed host, Elephant fetches once in the main session and passes the excerpt).
+- **`web: yes` (Rule P2 in [`templates/protocol.md`](../templates/protocol.md))**: Spawns `saw-goldfish-web` so Goldfish checks external facts (APIs, CLI flags, versions) against live docs instead of stale memory; `general` turns it on for the lenses listed under the §1 table. Your harness may ask to approve web tools, so pre-allow them to keep `/saw-run` non-stop; blocked web and unverified claims are handled per P2. To turn it off, override the row in an `extends: general` pack (copy `focus` from `general.md`): `| review | critic | active | no | bugs, regressions, failure modes, missing tests |`.
 - **Invoking a pack**: Pass the pack name as the first argument (`/saw-run backend-sec add password reset` or `/saw-diff-commit backend-sec #123`), or set `default-pack: backend-sec` under `## Settings` in `.saw/profile.md`.
 
 ---
@@ -80,6 +82,7 @@ Required final line:
 ## 4. Upgrade Safety (`./install.sh <dir>`)
 
 - **Without `--update` (`UPDATE=0`)**: Existing modified SAW-owned files are skipped as conflicts (`conflicts`) and retired SAW skills are left untouched.
+- **Web in `general` (both modes)**: Refreshing `general.md` enables web for the lenses listed under the §1 table, including in packs that `extends: general`; override those rows with `web` = `no` if queries must not leave the machine.
 - **Custom lens vs. new built-in (both modes)**: If SAW starts shipping a lens whose name matches your marker-less `.saw/lenses/<lens>.md`, your file is never copied over; it is reported under `kept` so you can rename it.
 - **With `--update` (`UPDATE=1`)**:
   - **Preserved (Project-Owned)**: `.saw/profile.md`, custom `.saw/packs/*.md` (other than `general.md`), custom `.saw/lenses/*.md`, custom user skills (including custom `saw-*`), and instructions outside `<!-- SAW:BEGIN -->...<!-- SAW:END -->`.

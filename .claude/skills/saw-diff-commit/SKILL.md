@@ -29,4 +29,4 @@ If active `review` lenses exist (default: `critic` + `simplifier`), run them in 
 Delete `"$DIFF_PATH"` and present:
 1. **Change Summary & Focus Map**: intent, `+/-` stats, behavioral vs mechanical breakdown.
 2. **SAW Philosophy Commentary**: Minimal Diff / anti-slop / test integrity / defect findings.
-3. **Verdict & Comments**: `SUMMARY_ONLY` (if `lenses=none`), `REVIEW_READY` (1+ lenses ran and all returned `SAW-STATUS: OK`), or `RECOMMEND_SPLIT_OR_CLEANUP` (any `SAW-STATUS: SUGGEST`) + copy-pasteable `file:line` comments.
+3. **Verdict & Comments**: `SUMMARY_ONLY` (if `lenses=none`), `REVIEW_READY` (1+ lenses ran and every `SAW-STATUS: SUGGEST` finding, if any, is still unverified or was disproved per P2), or `RECOMMEND_SPLIT_OR_CLEANUP` (any finding that is confirmed or does not depend on external facts) + copy-pasteable `file:line` comments.
