@@ -9,7 +9,7 @@ Ensure whoever carries out this task can do so without guessing, and can objecti
 
 ## Checkpoints
 1. **Ambiguity & Missing Edge Cases**: Are behaviors for boundary cases, invalid or missing inputs, and failure states clear?
-2. **Concrete Verification Criteria**: Does the spec name exact, observable acceptance checks (e.g. tests, commands, rubric items, measurable outcomes) that verify completion?
+2. **Concrete Verification Criteria**: Does the spec name exact, observable acceptance checks (e.g. tests, commands, rubric items, measurable outcomes) that verify completion? If someone other than the doer, the requester, or reviewers of the change (e.g. end users, readers of a document, a decision-maker) must read or act on the result, is at least one Verification Criteria item derived from what they must be able to do with it, stated as something the result must contain or pass (not just "they review it")?
 3. **Right-Sized Scope**: Are out-of-scope boundaries clear? Is the task trying to bundle unrelated changes that should be split?
 4. **Grounding**: Do referenced files, sources, data, symbols, or existing behaviors match what actually exists?
 

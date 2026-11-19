@@ -14,7 +14,7 @@ Read `.saw/protocol.md` first and follow P0–P5. Do not invoke other skills via
 If the request is clearly trivial (typo, comment, single-line tweak), tell the user SAW is overkill here, apply the minimal fix directly, run checks, and finish.
 
 ## 1. Phase: Spec (Internal Clarity + Single User Checkpoint)
-1. Inspect touched/related code and draft `.saw/work/<yyyy-mm-dd>-<slug>/spec.md` (goal, in/out scope, likely files, edge cases, verification criteria).
+1. Inspect touched/related code and draft `.saw/work/<yyyy-mm-dd>-<slug>/spec.md` (goal incl. who uses the result if anyone besides the doer, requester, and reviewers, in/out scope, likely files, edge cases, verification criteria).
 2. Run active `spec` lenses (`clarity`) up to `rounds.spec` (default `1`) and silently tighten `spec.md` before presenting it.
 3. **CHECKPOINT (Ask User Once)**:
    Show the concise spec + verification plan and ask:

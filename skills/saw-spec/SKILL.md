@@ -15,7 +15,7 @@ Read the existing files likely touched by the task so the spec aligns with actua
 Keep it concise (under ~50 lines when possible):
 ```markdown
 # Spec: <task title>
-- Goal: <1–2 sentences>
+- Goal: <1–2 sentences, incl. who uses the result if anyone besides the doer, requester, and reviewers>
 - Scope:
   - In: <bullet list>
   - Out: <explicitly excluded>
