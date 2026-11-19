@@ -11,6 +11,7 @@ Inspect concrete differences between `LEFT` and `RIGHT` across code, data/config
 - **Code**: Logic bugs, changed defaults/error handling, broken invariants, or missing edge-case/test coverage.
 - **Data & Configs**: Missing keys, renamed fields, type/schema drift, or risky value/environment discrepancies.
 - **Docs & Specs**: Contradictions, dropped requirements, ambiguous rules, or drifted commands/paths.
+- **Claims & Numbers**: Claim strength changed, citations or sources dropped, figures or numbers changed without a source.
 
 Cite exact `file:line` or section/key paths. If no concrete defects, contradictions, or unintended gaps exist, write `No concrete gaps or risky drift.`
 Last line, exactly:

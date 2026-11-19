@@ -22,7 +22,7 @@ Defined in [`templates/packs/general.md`](../templates/packs/general.md) (instal
 |---|---|---|---|---|
 | `brainstorm` | `/saw-brainstorm` | `incremental`, `reframe`, `zoom`, `reality` | `active` (4 parallel) | Minimal start, reframe, zoom-out/in, suppressor |
 | `spec` | `/saw-spec`, `/saw-run` | `clarity` | `active` | Ambiguities, edge cases, verification criteria |
-| `review` | `/saw-review`, `/saw-work`, `/saw-run`, `/saw-diff-commit` | `critic`, `simplifier` | `active` (2 parallel) | Bugs/regressions/tests + Minimal Diff |
+| `review` | `/saw-review`, `/saw-work`, `/saw-run`, `/saw-diff-commit` | `critic`, `simplifier` | `active` (2 parallel) | Defects/ripple effects/missing checks + Minimal Diff |
 | `work` | `/saw-work`, `/saw-run` | `diagnostician` | `on_demand` (only when stuck/unclear bug) | Blind root-cause diagnosis (`SYMPTOM` + `REPRO`) |
 | `diff` | `/saw-diff-files` | `concept`, `direction`, `detail` | `active` (3 parallel) | Macro concept, mid direction, detail drift |
 
@@ -49,7 +49,7 @@ rounds: review_post=3
 ### Resolution Rules (Protocol P0 & P2)
 - **Inheritance (`extends:`)**: Resolves root ancestor → child up to depth 3 (with cycle detection); child rows replace matching `(phase, lens)` rows, new rows are added, and `use: off` removes a lens.
 - **`rounds:`**: Overrides only the specified loop keys (`spec`, `review_pre`, `work_fix`, `review_post`, `review_manual`), leaving other parent keys intact.
-- **`web: yes` (Rule P2 in [`templates/protocol.md`](../templates/protocol.md))**: Spawns `saw-goldfish-web` so Goldfish checks external facts (APIs, CLI flags, versions) against live docs instead of stale memory; `general` turns it on for the lenses listed under the §1 table. Your harness may ask to approve web tools, so pre-allow them to keep `/saw-run` non-stop; blocked web and unverified claims are handled per P2. To turn it off, override the row in an `extends: general` pack (copy `focus` from `general.md`): `| review | critic | active | no | bugs, regressions, failure modes, missing tests |`.
+- **`web: yes` (Rule P2 in [`templates/protocol.md`](../templates/protocol.md))**: Spawns `saw-goldfish-web` so Goldfish checks external facts (APIs, CLI flags, versions) against live docs instead of stale memory; `general` turns it on for the lenses listed under the §1 table. Your harness may ask to approve web tools, so pre-allow them to keep `/saw-run` non-stop; blocked web and unverified claims are handled per P2. To turn it off, override the row in an `extends: general` pack (copy `focus` from `general.md`): `| review | critic | active | no | defects, ripple effects, failure modes, missing checks |`.
 - **Invoking a pack**: Pass the pack name as the first argument (`/saw-run backend-sec add password reset` or `/saw-diff-commit backend-sec #123`), or set `default-pack: backend-sec` under `## Settings` in `.saw/profile.md`.
 
 ---
