@@ -138,7 +138,8 @@ install_block() {
     local tmp
     tmp=$(mktemp)
     # A CRLF block is rewritten with CRLF so the file keeps one line ending.
-    awk -v b="$BEGIN_MARK" -v e="$END_MARK" -v f="$src" '
+    # BINMODE=3 keeps MSYS2/Git-for-Windows gawk from stripping CR before $0 is read (no-op on BSD/mawk).
+    awk -v BINMODE=3 -v b="$BEGIN_MARK" -v e="$END_MARK" -v f="$src" '
       { l = $0; sub(/\r+$/, "", l) }
       l==b {
         cr = ($0 ~ /\r$/) ? "\r" : ""

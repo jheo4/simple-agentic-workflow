@@ -58,7 +58,10 @@ check_dest() {
   esac
   [ ! -e "$abs" ] || [ -d "$abs" ] || refuse "exists and is not a directory"
   if [ -d "$abs" ] && [ -n "$(ls -A "$abs")" ]; then
-    [ "$(git -C "$abs" rev-parse --show-toplevel 2>/dev/null)" = "$abs" ] \
+    local top
+    top=$(git -C "$abs" rev-parse --show-toplevel 2>/dev/null) || top=""
+    # Normalize via cd + pwd -P so Windows Git's C:/... output matches MSYS2 POSIX paths.
+    [ -n "$top" ] && [ "$(cd "$top" 2>/dev/null && pwd -P)" = "$abs" ] \
       && git -C "$abs" rev-parse -q --verify refs/tags/canary-baseline >/dev/null \
       || refuse "non-empty and not a canary sandbox (if it is an old or half-built sandbox, remove it: rm -rf '$abs')"
   fi
